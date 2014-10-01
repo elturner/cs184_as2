@@ -1,0 +1,71 @@
+# Ignore hidden files
+*~
+*.swp
+**/.metadata/**
+**/.DS_Store
+
+#Ignore visual studio files
+*.sdf
+*.opensdf
+*.suo
+*.vcxproj.filters
+*.vcxproj.user
+*.ipch
+*.ilk
+*.pdb
+*.lastbuildstate
+*.cache
+*.rc
+*.idb
+
+#Ignore binary files
+*.exe
+*.exe.*
+*.obj
+*.bin
+*.dll
+*.lib
+*.zip
+*.dmg
+*.iso
+*.gz
+*.jar
+*.rar
+*.tar
+*.sql
+*.pyc
+**/bin/**
+**/build/**
+**/x64/**
+**/Release/**
+**/Debug/**
+
+#Ignore temp/log files
+*.tlog
+*.log
+
+#Ignore system-dependent documentation files
+*.odt
+*.doc
+*.docx
+
+#Ignore test or sandbox directories
+**/sandbox/**
+
+#Ignore doxygen files
+**/doxygen/html/**
+**/doxygen/latex/**
+
+#Ignore bin directory
+bin/
+
+#Ignore compiled AVR hex files
+*.mk
+*.d
+*.eep
+*.elf
+*.hex
+*.lss
+*.map
+*.o
+*.srec
