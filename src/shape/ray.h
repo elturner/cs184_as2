@@ -39,8 +39,6 @@ class ray_t
 		 */
 		Eigen::Vector3f target;
 
-		// TODO save the normalized direction
-
 	/* functions */
 	public:
 

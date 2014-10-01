@@ -131,10 +131,10 @@ class sphere_t : public shape_t
 		 * @return   Returns true iff the shape intersects the ray
 		 */
 		inline bool intersects(float& t, Eigen::Vector3f& n,
-		                        const ray_t& r) const;
+		                        const ray_t& r) const
 		{
 			Eigen::Vector3f d, c;
-			float B, C, root;
+			float B, C, root, r2;
 
 			/* characterize ray via tangent direction */
 			d = r.dir();
@@ -147,7 +147,7 @@ class sphere_t : public shape_t
 			 * equation:
 			 *
 			 *	0 = ||d||^2 * t^2 + 2*d.dot(c)*t 
-			 *			+ (||c||^2 - 1)
+			 *			+ (||c||^2 - radius^2)
 			 *
 			 * If there are no real roots, then no intersection
 			 * occurs.  Otherwise, we can use the value of t
@@ -155,8 +155,9 @@ class sphere_t : public shape_t
 			 */
 
 			/* compute terms of quadratic.  Note d is unit */
-			B = 2*d.dot(c);
-			C = c.squaredNorm() - 1;
+			B = -2*d.dot(c);
+			r2 = this->radius * this->radius;
+			C = c.squaredNorm() - r2;
 			
 			/* compute b^2 - 4*a*c for the quadratic */
 			root = B*B - 4*C;

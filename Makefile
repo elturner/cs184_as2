@@ -12,6 +12,7 @@ SOURCES =	include/lodepng/lodepng.cpp \
 		src/util/cmd_args.cpp \
 		src/scene/phong_shader.cpp \
 		src/scene/camera.cpp \
+		src/scene/scene.cpp \
 		src/gui/canvas.cpp \
 		src/main.cpp
 
@@ -24,7 +25,9 @@ HEADERS =	include/lodepng/lodepng.h \
 		src/shape/ray.h \
 		src/scene/light.h \
 		src/scene/phong_shader.h \
+		src/scene/element.h \
 		src/scene/camera.h \
+		src/scene/scene.h \
 		src/gui/canvas.h
 
 OBJECTS = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(SOURCES))

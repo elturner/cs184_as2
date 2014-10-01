@@ -35,9 +35,21 @@ void camera_t::get_ray(ray_t& ray, float u, float v) const
 	/* compute 3D position of point on viewing plane based
 	 * on the coordinates.
 	 *
-	 * This uses bilinear interpolation */
-	p = u*(  v*(this->LL) + (1-v)*(this->UL)  ) 
-		+ (1-u)*(  v*(this->LR) + (1-v)*(this->UR)  );
+	 * This uses bilinear interpolation 
+	 *
+	 * 	       --u-->
+	 *	   +---------------------+
+	 *	   |                     |
+	 *	 | |                     |
+	 *	 v |                     |
+	 *	 | |                     |
+	 *	 V |                     |
+	 *	   |                     |
+	 *	   +---------------------+
+	 *
+	 */
+	p = (1-u)*(  v*(this->LL) + (1-v)*(this->UL)  ) 
+		+ u*(  v*(this->LR) + (1-v)*(this->UR)  );
 
 	/* generate ray */
 	ray.set(this->eye, p);

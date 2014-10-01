@@ -13,11 +13,12 @@
  * lighting, and materials.
  */
 
+#include <color/color.h>
 #include <scene/light.h>
-#include <scene/phong_shader.h>
-#include <scene/sphere.h>
 #include <scene/camera.h>
+#include <scene/element.h>
 #include <Eigen/Dense>
+#include <string>
 #include <vector>
 
 /**
@@ -30,10 +31,12 @@ class scene_t
 	private:
 
 		/**
-		 * the geometry of the scene is represented by a set of
-		 * spheres 
+		 * The geometry of the scene is represented by a set of
+		 * elements.
+		 *
+		 * Each element has a shape and material properties.
 		 */
-		std::vector<sphere_t> spheres;
+		std::vector<element_t> elements;
 
 		/**
 		 * The lighting of the environment is represented by
@@ -45,22 +48,12 @@ class scene_t
 		std::vector<light_t> lights;
 
 		/**
-		 * All geometry has the same material, which is represented
-		 * by this phong shader object.
-		 */
-		phong_shader_t shader;
-
-		/**
-		 * The camera is positioned in the scene along the z-axis,
-		 * looking downward.  So the camera direction is always
-		 * constant, but the position can vary
+		 * The camera represents the eye posiiton and the
+		 * viewing plane.
+		 *
+		 * It can be oriented arbitrarily in the scene.
 		 */
 		camera_t camera;
-
-		/**
-		 * If true, will rotate the lights
-		 */
-		bool rotate_lights;
 
 	/* functions */
 	public:
@@ -75,40 +68,32 @@ class scene_t
 		scene_t();
 	
 		/**
-		 * Initializes a scene from command-line arguments
+		 * Initializes a scene from the given input file
 		 *
-		 * @param argc  Number of command-line arguments
-		 * @param argv  The command-line arguments
+		 * @param filename   The file to parse
 		 *
 		 * @return      Returns zero on success, non-zero on failure
 		 */
-		int init(int argc, char** argv);
-
-		/**
-		 * Set the display size
-		 *
-		 * This will modify the scene's camera, in order to
-		 * keep everything in view
-		 *
-		 * @param w     Width of the camera display
-		 * @param h     Height of the camera display
-		 */
-		void set_display_size(int w, int h);
+		int init(const std::string& filename);
 
 		/*----------*/
-		/* graphics */
+		/* geometry */
 		/*----------*/
 
 		/**
-		 * Will toggle light rotation in the scene
+		 * Traces the ray at the given viewer plane coordinates
+		 *
+		 * Will create the specified ray, perform ray tracing
+		 * into the scene, and compute the final observed color
+		 *
+		 * @param u    The horizontal coordinate [0,1] of the ray
+		 *             on the viewer screen
+		 * @param v    The vertical coordinate [0,1] of the ray
+		 *             on the viewer screen
+		 *
+		 * @return     Returns the final color observed by this ray
 		 */
-		inline void toggle_rotation()
-		{ this->rotate_lights = !(this->rotate_lights); };
-
-		/**
-		 * Renders this scene
-		 */
-		void render();
+		color_t trace(float u, float v) const;
 
 		/*-----------*/
 		/* debugging */

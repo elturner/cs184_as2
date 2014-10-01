@@ -131,8 +131,8 @@ void canvas_t::unittest()
 	canvas.set_size(width, height);
 
 	/* populate some pixels */
-	for(r = 0; r < width; r++)
-		for(c = 0; c < height; c++)
+	for(r = 0; r < height; r++)
+		for(c = 0; c < width; c++)
 		{
 			color.set_ints(255 * !(c & r), 
 					255 & (c ^ r),
