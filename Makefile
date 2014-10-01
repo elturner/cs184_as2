@@ -1,0 +1,64 @@
+CC = g++
+CFLAGS = -g -O2 -W -Wall -Wextra -std=c++0x
+LFLAGS = -lm #-lglut -lGL -lGLU
+PFLAGS = #-pg -fprofile-arcs
+IFLAGS = -Isrc/ -Iinclude/ 
+BUILDDIR = build
+EXECUTABLE = as2
+
+# defines for the program
+
+SOURCES =	include/lodepng/lodepng.cpp \
+		src/util/cmd_args.cpp \
+		src/scene/phong_shader.cpp \
+		src/scene/camera.cpp \
+		src/gui/canvas.cpp \
+		src/main.cpp
+
+HEADERS =	include/lodepng/lodepng.h \
+		src/util/error_codes.h \
+		src/util/cmd_args.h \
+		src/color/color.h \
+		src/shape/sphere.h \
+		src/shape/shape.h \
+		src/shape/ray.h \
+		src/scene/light.h \
+		src/scene/phong_shader.h \
+		src/scene/camera.h \
+		src/gui/canvas.h
+
+OBJECTS = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(SOURCES))
+
+# compile commands
+
+all: $(SOURCES) $(EXECUTABLE)
+	make --no-builtin-rules --no-builtin-variables $(EXECUTABLE)
+
+simple:
+	$(CC) $(IFLAGS) $(CFLAGS) $(LFLAGS) $(PFLAGS) $(SOURCES) -o $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(OBJECTS) -o $@ $(LFLAGS) $(PFLAGS) $(IFLAGS)
+
+$(BUILDDIR)/%.o : %.cpp
+	@mkdir -p $(shell dirname $@)		# ensure folder exists
+	@g++ -std=c++0x -MM -MF $(patsubst %.o,%.d,$@) -MT $@ $< # recalc depends
+	$(CC) -c $(CFLAGS) $(IFLAGS) $< -o $@
+
+# helper commands
+
+todo:
+	grep -n --color=auto "TODO" $(SOURCES) $(HEADERS)
+
+grep:
+	grep -n --color=auto "$(SEARCH)" $(SOURCES) $(HEADERS)
+
+size:
+	wc $(SOURCES) $(HEADERS)
+
+clean:
+	rm -rf $(OBJECTS) $(EXECUTABLE) $(BUILDDIR) $(EXECUTABLE).dSYM
+
+# include full recalculated dependencies
+-include $(OBJECTS:.o=.d)
+
