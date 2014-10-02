@@ -48,16 +48,20 @@ class shape_t
 		 * of a ray, should determine if the 3D shape intersects 
 		 * the given ray.
 		 *
-		 * @param t  Where to store the distance along the ray
-		 *           where the intersection occurs
-		 * @param n  The normal vector at the point of intersection
-		 *           on the surface 
-		 * @param r  The ray to analyze
+		 * @param t      Where to store the distance along the ray
+		 *               where the intersection occurs
+		 * @param n      The normal vector at the point of 
+		 *               intersection on the surface 
+		 * @param r      The ray to analyze
+		 * @param t_min  The minimum valid t value to cause x-tion
+		 * @param t_max  The maximum valid t value to cause x-tion
+		 *
 		 *
 		 * @return   Returns true iff the shape intersects the ray
 		 */
 		virtual bool intersects(float& t, Eigen::Vector3f& n,
-		                        const ray_t& r) const =0;
+		                        const ray_t& r,
+					float t_min, float t_max) const =0;
 };
 
 #endif

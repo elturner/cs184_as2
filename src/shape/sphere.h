@@ -139,11 +139,14 @@ class sphere_t : public shape_t
 		 * @param n  The normal vector at the point of intersection
 		 *           on the surface 
 		 * @param r  The ray to analyze
+		 * @param t_min  The minimum valid t value to cause x-tion
+		 * @param t_max  The maximum valid t value to cause x-tion
 		 *
 		 * @return   Returns true iff the shape intersects the ray
 		 */
 		inline bool intersects(float& t, Eigen::Vector3f& n,
-		                        const ray_t& r) const
+		                        const ray_t& r,
+					float t_min, float t_max) const
 		{
 			Eigen::Vector3f d, c;
 			float B, C, root, t1, t2;
@@ -188,14 +191,18 @@ class sphere_t : public shape_t
 				t1 = (-B - root) / 2;
 				t2 = (-B + root) / 2;
 
-				if(t1 < 0 && t2 < 0)
+				if(t2 < t_min)
 					return false; /* both roots bad */
-				if(t1 < 0)
-					t = t2; /* use positive one */
-				else if(t2 < 0)
-					t = t1; /* somehow this positive */
+				if(t1 > t_max)
+					return false; /* both roots bad */
+				if(t1 < t_min && t2 > t_max)
+					return false; /* out of bounds */
+
+				/* determine best of both roots */
+				if(t1 < t_min)
+					t = t2; /* use higher one */
 				else
-					t = std::min(t1,t2);
+					t = t1; /* use lower one */
 			}
 
 			/* compute the normal of the sphere at this

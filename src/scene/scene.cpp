@@ -30,7 +30,7 @@ using namespace std;
 using namespace Eigen;
 
 /* the following defines are used in this code */
-#define EPSILON 0.001
+#define EPSILON 0.01
 
 /*--------------------------*/
 /* function implementations */
@@ -46,13 +46,14 @@ int scene_t::init(const std::string& filename)
 	// TODO implement me
 
 	// TODO debugging:  hard-code a scene
-	this->elements.resize(6);
+	this->elements.resize(7);
 	this->elements[0].set(new sphere_t(0.0f,0.0f,-26.0f,2.0f));
 	this->elements[1].set(new sphere_t(10.0f,10.0f,-75.0f,2.0f));
 	this->elements[2].set(new sphere_t(-12.0f,1.0f,-44.0f,2.0f));
-	this->elements[3].set(new sphere_t(15.0f,-13.0f,-67.0f,2.0f));
-	this->elements[4].set(new sphere_t(-10.0f,-10.0f,-47.0f,2.0f));
+	this->elements[3].set(new sphere_t(15.0f,-8.0f,-67.0f,2.0f));
+	this->elements[4].set(new sphere_t(-10.0f,-5.0f,-47.0f,2.0f));
 	this->elements[5].set(new sphere_t(0.0f,2.0f,-25.0f,1.0f));
+	this->elements[6].set(new sphere_t(0.0f,-10000.0f,-25.0f,9990.0f));
 	this->lights.resize(3);
 	this->lights[0].set(true, Eigen::Vector3f(-5.0f, 10.0f, -22.0f));
 	this->lights[0].get_color().set(1.0f, 1.0f, 1.0f);
@@ -90,15 +91,9 @@ color_t scene_t::trace(float u, float v) const
 
 		/* check if the given ray intersects this element */
 		if(!(this->elements[i].get_shape()->intersects(t,
-							normal,ray)))
+						normal, ray,
+						0.0f, t_best)))
 			continue; /* no intersection */
-
-		/* check if this intersection is closer than
-		 * previously discovered intersections */
-		if(t > t_best)
-			continue; /* this one is occluded */
-		if(t < 0.0f)
-			continue; /* wrong side of eye */
 
 		/* keep track of best surface seen */
 		t_best = t;
@@ -130,13 +125,9 @@ color_t scene_t::trace(float u, float v) const
 			/* check if the i'th element shadows this 
 			 * position */
 			if(!(this->elements[i].get_shape()->intersects(t,
-							normal,shadow)))
+						normal, shadow,
+						EPSILON, lightdist)))
 				continue; /* no intersection */
-
-			if(t < EPSILON)
-				continue; /* too close to shadow */
-			if(t > lightdist)
-				continue; /* too far to shadow */
 
 			/* the i'th element shadows us from this
 			 * light source.  Don't shade here. */
