@@ -55,6 +55,16 @@ class phong_shader_t
 		phong_shader_t();
 
 		/**
+		 * Construct from another shader
+		 *
+		 * @param other   The other shader
+		 */
+		phong_shader_t(const phong_shader_t& other)
+			: ka(other.ka), kd(other.kd),
+			  ks(other.ks), p(other.p)
+		{};
+
+		/**
 		 * Computes the phong illumination model for the
 		 * specified point on a surface.
 		 *
@@ -76,6 +86,27 @@ class phong_shader_t
 				const Eigen::Vector3f& V,
 				const light_t& light) const;
 
+		/**
+		 * Copies value of given shader
+		 *
+		 * Will copy the parameters from the other shader
+		 *
+		 * @param other  The other shader to copy
+		 *
+		 * @return    Returns the modified shader
+		 */
+		inline phong_shader_t& operator = (
+				const phong_shader_t& other)
+		{
+			/* copy parameters */
+			this->ka = other.ka;
+			this->kd = other.kd;
+			this->ks = other.ks;
+			this->p  = other.p;
+
+			/* return the modified object */
+			return (*this);
+		};
 };
 
 #endif

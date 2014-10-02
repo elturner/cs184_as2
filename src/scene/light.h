@@ -16,6 +16,7 @@
 #include <color/color.h>
 #include <Eigen/Dense>
 #include <cmath>
+#include <float.h>
 
 /**
  * The light_t class represents a light source
@@ -172,6 +173,26 @@ class light_t
 			
 			/* this is a directional light source */
 			return this->v; /* direction is constant */
+		};
+
+		/**
+		 * Gets the distance of the light source to the
+		 * given point.
+		 *
+		 * Note that directional lights are assumed to be
+		 * infinitely far away from everything.
+		 *
+		 * @param p  The point to analyze
+		 *
+		 * @return   The distance of the source of this light
+		 *           to the specified point p
+		 */
+		inline float get_distance(const Eigen::Vector3f& p) const
+		{
+			if(this->is_point)
+				return (p - this->v).norm();
+			else
+				return FLT_MAX;
 		};
 
 		/**

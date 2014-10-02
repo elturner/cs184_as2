@@ -76,6 +76,48 @@ class scene_t
 		 */
 		int init(const std::string& filename);
 
+		/*-----------*/
+		/* modifiers */
+		/*-----------*/
+
+		/**
+		 * Adds a light source to the scene
+		 *
+		 * @param light   The light source to add
+		 */
+		inline void add(const light_t& light)
+		{ this->lights.push_back(light); };
+
+		/**
+		 * Adds an element to the scene
+		 *
+		 * @param shape     The shape of the element to add
+		 * @param shader    The shader properties of the element
+		 */
+		inline void add(shape_t* shape, 
+				const phong_shader_t& shader)
+		{ 
+			this->elements.resize(this->elements.size()+1);
+			this->elements.back().set(shape);
+			this->elements.back().set_shader(shader);
+		};
+
+		/**
+		 * Retrieves the camera object reference, for modification
+		 *
+		 * @return   Returns modifiable reference to the camera
+		 */
+		inline camera_t& get_camera()
+		{ return this->camera; };
+
+		/**
+		 * Retrieves the camera object const reference
+		 *
+		 * @return   Returns a constant reference to the camera
+		 */
+		inline const camera_t& get_camera() const
+		{ return this->camera; };
+
 		/*----------*/
 		/* geometry */
 		/*----------*/

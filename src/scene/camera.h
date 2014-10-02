@@ -66,6 +66,28 @@ class camera_t
 		inline const Eigen::Vector3f get_eye() const
 		{ return this->eye; };
 
+		/**
+		 * Sets the parameters of this camera
+		 *
+		 * @param e   The location of the eye, in 3D space
+		 * @param ul  The upper-left corner of viewing plane
+		 * @param ur  The upper-right corner of viewing plane
+		 * @param ll  The lower-left corner of the viewing plane
+		 * @param lr  The lower-right corner of the viewing plane
+		 */
+		inline void set(const Eigen::Vector3f& e,
+				const Eigen::Vector3f& ul, 
+				const Eigen::Vector3f& ur,
+				const Eigen::Vector3f& ll, 
+				const Eigen::Vector3f& lr)
+		{
+			this->eye = e;
+			this->UL = ul;
+			this->UR = ur;
+			this->LL = ll;
+			this->LR = lr;
+		};
+
 		/*----------*/
 		/* geometry */
 		/*----------*/

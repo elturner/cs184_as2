@@ -14,6 +14,7 @@
 
 #include <shape/shape.h>
 #include <Eigen/Dense>
+#include <algorithm>
 
 /**
  * The sphere_t class is used to represent the geometry of a sphere
@@ -35,6 +36,11 @@ class sphere_t : public shape_t
 		 */
 		float radius;
 
+		/**
+		 * Cached value of the square of the radius
+		 */
+		float radius_squared;
+
 	/* functions */
 	public:
 
@@ -45,7 +51,8 @@ class sphere_t : public shape_t
 		/**
 		 * Generates default sphere
 		 */
-		sphere_t() : center(0.0f,0.0f,0.0f), radius(1.0f)
+		sphere_t() : center(0.0f,0.0f,0.0f), 
+		             radius(1.0f), radius_squared(1.0f)
 		{};
 
 		/**
@@ -54,7 +61,9 @@ class sphere_t : public shape_t
 		 * @param other   The other sphere to copy
 		 */
 		sphere_t(const sphere_t& other)
-			: center(other.center), radius(other.radius)
+			: center(other.center), 
+			  radius(other.radius), 
+			  radius_squared(other.radius_squared)
 		{};
 
 		/**
@@ -66,7 +75,7 @@ class sphere_t : public shape_t
 		 * @param r   The radius
 		 */
 		sphere_t(float x, float y, float z, float r)
-			: center(x,y,z), radius(r)
+			: center(x,y,z), radius(r), radius_squared(r*r)
 		{};
 
 		/**
@@ -104,12 +113,15 @@ class sphere_t : public shape_t
 		{ return this->radius; };
 
 		/**
-		 * Accesses the radius of the sphere
+		 * Sets the radius of this sphere
 		 *
-		 * @return   Reference to the radius
+		 * @param r  The value to use as the radius
 		 */
-		inline float& get_radius()
-		{ return this->radius; };
+		inline void set_radius(float r)
+		{ 
+			this->radius = r;
+			this->radius_squared = r*r;
+		};
 
 		/*----------*/
 		/* geometry */
@@ -134,7 +146,7 @@ class sphere_t : public shape_t
 		                        const ray_t& r) const
 		{
 			Eigen::Vector3f d, c;
-			float B, C, root, r2;
+			float B, C, root, t1, t2;
 
 			/* characterize ray via tangent direction */
 			d = r.dir();
@@ -156,8 +168,7 @@ class sphere_t : public shape_t
 
 			/* compute terms of quadratic.  Note d is unit */
 			B = -2*d.dot(c);
-			r2 = this->radius * this->radius;
-			C = c.squaredNorm() - r2;
+			C = c.squaredNorm() - this->radius_squared;
 			
 			/* compute b^2 - 4*a*c for the quadratic */
 			root = B*B - 4*C;
@@ -174,9 +185,17 @@ class sphere_t : public shape_t
 				 * is positive, and if both are positive,
 				 * choose smaller */
 				root = sqrt(root);
-				t = (-B - root) / 2;
-				if(t < 0)
-					t = (-B + root) / 2;
+				t1 = (-B - root) / 2;
+				t2 = (-B + root) / 2;
+
+				if(t1 < 0 && t2 < 0)
+					return false; /* both roots bad */
+				if(t1 < 0)
+					t = t2; /* use positive one */
+				else if(t2 < 0)
+					t = t1; /* somehow this positive */
+				else
+					t = std::min(t1,t2);
 			}
 
 			/* compute the normal of the sphere at this

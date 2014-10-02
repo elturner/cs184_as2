@@ -1,5 +1,6 @@
 #include <iostream>
 #include <gui/canvas.h>
+#include <gui/sampler.h>
 #include <scene/scene.h>
 
 /**
@@ -23,6 +24,7 @@ using namespace std;
 int main(int argc, char** argv)
 {
 	canvas_t canvas;
+	sampler_t sampler;
 	scene_t scene;
 	int ret;
 
@@ -31,17 +33,16 @@ int main(int argc, char** argv)
 	float u, v;
 	width = height = 2000;
 	canvas.set_size(width, height);
+	sampler.init(width, height, 3);
 	scene.init("");
-	for(r = 0; r < height; r++)
-		for(c = 0; c < width; c++)
-		{
-			/* sample a coordinate from the pixel */
-			u = ((1.0f * (c + 0.5f)) / width);
-			v = ((1.0f * (r + 0.5f)) / height);
+	while(!(sampler.is_done()))
+	{
+		/* sample a coordinate from the pixel */
+		sampler.next(c, r, u, v);
 
-			/* raytrace for this pixel */
-			canvas.add_pixel(c, r, scene.trace(u, v));
-		}
+		/* raytrace for this pixel */
+		canvas.add_pixel(c, r, scene.trace(u, v));
+	}
 	canvas.writepng("unittest2.png");
 	
 	/* success */

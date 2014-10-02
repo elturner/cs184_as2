@@ -30,7 +30,7 @@ using namespace std;
 using namespace Eigen;
 
 /* the following defines are used in this code */
-#define EPSILON 0.01
+#define EPSILON 0.001
 
 /*--------------------------*/
 /* function implementations */
@@ -53,9 +53,13 @@ int scene_t::init(const std::string& filename)
 	this->elements[3].set(new sphere_t(15.0f,-13.0f,-67.0f,2.0f));
 	this->elements[4].set(new sphere_t(-10.0f,-10.0f,-47.0f,2.0f));
 	this->elements[5].set(new sphere_t(0.0f,2.0f,-25.0f,1.0f));
-	this->lights.resize(1);
+	this->lights.resize(3);
 	this->lights[0].set(true, Eigen::Vector3f(-5.0f, 10.0f, -22.0f));
 	this->lights[0].get_color().set(1.0f, 1.0f, 1.0f);
+	this->lights[1].set(true, Eigen::Vector3f(-1.0f, 10.0f, -22.0f));
+	this->lights[1].get_color().set(1.0f, 1.0f, 1.0f);
+	this->lights[2].set(true, Eigen::Vector3f(-1.0f, 10.0f, -27.0f));
+	this->lights[2].get_color().set(1.0f, 1.0f, 1.0f);
 
 	/* success */
 	return 0;
@@ -116,18 +120,7 @@ color_t scene_t::trace(float u, float v) const
 	{
 		/* get direction from surface to this light */
 		lightdir = -(this->lights[j].get_direction(pos));
-		if(this->lights[j].get_is_point())
-		{
-			/* for a point light, get distance to source */
-			lightdist = (this->lights[j].get_v() - pos).norm();
-		}
-		else
-		{
-			/* for a directional light, we know
-			 * the direction, but assume distance
-			 * is infinite */
-			lightdist = FLT_MAX;
-		}
+		lightdist = this->lights[j].get_distance(pos);
 		shadow.set(pos, lightdir);
 
 		/* check for occluding elements (shadows) */

@@ -14,6 +14,7 @@ SOURCES =	include/lodepng/lodepng.cpp \
 		src/scene/camera.cpp \
 		src/scene/scene.cpp \
 		src/gui/canvas.cpp \
+		src/gui/sampler.cpp \
 		src/main.cpp
 
 HEADERS =	include/lodepng/lodepng.h \
@@ -28,7 +29,8 @@ HEADERS =	include/lodepng/lodepng.h \
 		src/scene/element.h \
 		src/scene/camera.h \
 		src/scene/scene.h \
-		src/gui/canvas.h
+		src/gui/canvas.h \
+		src/gui/sampler.h
 
 OBJECTS = $(patsubst %.cpp,$(BUILDDIR)/%.o,$(SOURCES))
 

@@ -92,13 +92,12 @@ class element_t
 		{ this->shape = s; };
 
 		/**
-		 * Retrieves the shader for this model
+		 * Sets this element's shader parameters
 		 *
-		 * Will retrieve a non-constant reference to
-		 * this model's shader, so it can be manipulated
+		 * @param s   The shader to use
 		 */
-		inline phong_shader_t& get_shader()
-		{ return this->shader; };
+		inline void set_shader(const phong_shader_t& s)
+		{ this->shader = s; };
 		
 		/**
 		 * Retrieves the shader for this model
