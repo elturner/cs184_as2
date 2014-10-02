@@ -50,7 +50,7 @@ class element_t
 			this->shape = NULL;
 
 			/* set some default texture */
-			this->shader.ka.set(0.1f, 0.1f, 0.1f);
+			this->shader.ka.set(0.0f, 0.0f, 0.0f);
 			this->shader.kd.set(0.9f, 0.2f, 0.2f);
 			this->shader.ks.set(1.0f, 1.0f, 1.0f);
 			this->shader.p = 255.0f;

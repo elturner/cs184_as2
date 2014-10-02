@@ -29,6 +29,9 @@
 using namespace std;
 using namespace Eigen;
 
+/* the following defines are used in this code */
+#define EPSILON 0.01
+
 /*--------------------------*/
 /* function implementations */
 /*--------------------------*/
@@ -45,13 +48,13 @@ int scene_t::init(const std::string& filename)
 	// TODO debugging:  hard-code a scene
 	this->elements.resize(6);
 	this->elements[0].set(new sphere_t(0.0f,0.0f,-26.0f,2.0f));
-	this->elements[1].set(new sphere_t(2.0f,10.0f,-75.0f,2.0f));
+	this->elements[1].set(new sphere_t(10.0f,10.0f,-75.0f,2.0f));
 	this->elements[2].set(new sphere_t(-12.0f,1.0f,-44.0f,2.0f));
 	this->elements[3].set(new sphere_t(15.0f,-13.0f,-67.0f,2.0f));
 	this->elements[4].set(new sphere_t(-10.0f,-10.0f,-47.0f,2.0f));
-	this->elements[5].set(new sphere_t(2.0f,0.0f,-25.0f,1.0f));
+	this->elements[5].set(new sphere_t(0.0f,2.0f,-25.0f,1.0f));
 	this->lights.resize(1);
-	this->lights[0].set(true, Eigen::Vector3f(-5.0f, 10.0f, -26.0f));
+	this->lights[0].set(true, Eigen::Vector3f(-5.0f, 10.0f, -22.0f));
 	this->lights[0].get_color().set(1.0f, 1.0f, 1.0f);
 
 	/* success */
@@ -61,10 +64,11 @@ int scene_t::init(const std::string& filename)
 color_t scene_t::trace(float u, float v) const
 {
 	color_t result, curr;
-	ray_t ray;
-	Vector3f pos, viewdir, normal, normal_best;
+	ray_t ray, shadow;
+	Vector3f pos, viewdir, normal, normal_best, lightdir;
 	size_t i, i_best, num_elems, j, num_lights;
-	float t, t_best;
+	float t, t_best, lightdist;
+	bool isshadowed;
 
 	/* construct ray from coordinates */
 	this->camera.get_ray(ray, u, v);
@@ -110,7 +114,46 @@ color_t scene_t::trace(float u, float v) const
 	/* get coloring from each light */
 	for(j = 0; j < num_lights; j++)
 	{
-		// TODO check for occluding elements (shadows)
+		/* get direction from surface to this light */
+		lightdir = -(this->lights[j].get_direction(pos));
+		if(this->lights[j].get_is_point())
+		{
+			/* for a point light, get distance to source */
+			lightdist = (this->lights[j].get_v() - pos).norm();
+		}
+		else
+		{
+			/* for a directional light, we know
+			 * the direction, but assume distance
+			 * is infinite */
+			lightdist = FLT_MAX;
+		}
+		shadow.set(pos, lightdir);
+
+		/* check for occluding elements (shadows) */
+		isshadowed = false;
+		for(i = 0; i < num_elems; i++)
+		{
+			/* check if the i'th element shadows this 
+			 * position */
+			if(!(this->elements[i].get_shape()->intersects(t,
+							normal,shadow)))
+				continue; /* no intersection */
+
+			if(t < EPSILON)
+				continue; /* too close to shadow */
+			if(t > lightdist)
+				continue; /* too far to shadow */
+
+			/* the i'th element shadows us from this
+			 * light source.  Don't shade here. */
+			isshadowed = true;
+			break;
+		}
+
+		/* only proceed if we are not shadowed */
+		if(isshadowed)
+			continue;
 
 		/* get color from this light on best surface */
 		curr = this->elements[i_best].get_shader().compute_phong(
