@@ -31,13 +31,9 @@ class ray_t
 		Eigen::Vector3f origin;
 
 		/**
-		 * A point that the ray passes through
-		 *
-		 * Note that (target - origin) is an unnormalized
-		 * representation for the direction vector of this
-		 * ray.
+		 * The normalized direction vector of this ray
 		 */
-		Eigen::Vector3f target;
+		Eigen::Vector3f direction;
 
 	/* functions */
 	public:
@@ -51,22 +47,25 @@ class ray_t
 		 *
 		 * This call will create a ray that points along the x-axis
 		 */
-		ray_t() : origin(0.0f,0.0f,0.0f), target(1.0f,0.0f,0.0f)
+		ray_t() : origin(0.0f,0.0f,0.0f), direction(1.0f,0.0f,0.0f)
 		{};
 
 		/**
 		 * Constructs a ray given origin and target
 		 *
-		 * Given the position of the ray's origin and the position
-		 * of a target in 3D space that the ray passes through,
+		 * Given the position of the ray's origin and the
+		 * direction in 3D space of the ray,
 		 * will construct this ray
 		 *
 		 * @param oo   The origin position to use
-		 * @param tt   The target position to use
+		 * @param dd   The direction to use
 		 */
-		ray_t(const Eigen::Vector3f& oo, const Eigen::Vector3f& tt)
-			: origin(oo), target(tt)
-		{};
+		ray_t(const Eigen::Vector3f& oo, const Eigen::Vector3f& dd)
+			: origin(oo), direction(dd)
+		{
+			/* make sure direction is normalized */
+			this->direction.normalize();
+		};
 
 		/**
 		 * Constructs a ray from the other given ray
@@ -74,7 +73,7 @@ class ray_t
 		 * @param other   The ray to copy
 		 */
 		ray_t(const ray_t& other) 
-			: origin(other.origin), target(other.target)
+			: origin(other.origin), direction(other.direction)
 		{};
 
 		/*-----------*/
@@ -85,13 +84,17 @@ class ray_t
 		 * Sets the values of this ray
 		 *
 		 * @param oo   The origin position to use
-		 * @param tt   The target position to use
+		 * @param dd   The direction to use
 		 */
 		inline void set(const Eigen::Vector3f& oo,
-		                const Eigen::Vector3f& tt)
+		                const Eigen::Vector3f& dd)
 		{
-			this->origin = oo;
-			this->target = tt;
+			/* set values */
+			this->origin    = oo;
+			this->direction = dd;
+
+			/* make sure direction is normalized */
+			this->direction.normalize();
 		};
 
 		/**
@@ -103,12 +106,15 @@ class ray_t
 		{ return this->origin; };
 
 		/**
-		 * Retrieves the target of this ray
+		 * Retrieves the direction of this ray
 		 *
-		 * @return   Returns a reference to the target position
+		 * Will compute the normalized direction vector
+		 * of this ray, from the origin to the target.
+		 *
+		 * @return    Returns the direction vector
 		 */
-		inline const Eigen::Vector3f& get_target() const
-		{ return this->target; };
+		inline const Eigen::Vector3f& dir() const
+		{ return this->direction; };
 
 		/*----------*/
 		/* geometry */
@@ -130,30 +136,10 @@ class ray_t
 			Eigen::Vector3f p;
 
 			/* compute position */
-			p = this->origin + t*(this->target - this->origin);
-
+			p = this->origin + t*(this->direction);
+			
 			/* return computation */
 			return p;
-		};
-
-		/**
-		 * Retrieves the direction of this ray
-		 *
-		 * Will compute the normalized direction vector
-		 * of this ray, from the origin to the target.
-		 *
-		 * @return    Returns the direction vector
-		 */
-		inline Eigen::Vector3f dir() const
-		{
-			Eigen::Vector3f d;
-
-			/* compute direction */
-			d = (this->target - this->origin);
-			d.normalize();
-
-			/* return the result */
-			return d;
 		};
 
 		/*-----------*/
@@ -171,8 +157,8 @@ class ray_t
 		inline void print(std::ostream& os) const
 		{
 			os << "<ray_t: origin=["
-			   << this->origin.transpose() << "], target=["
-			   << this->target.transpose() << "] >"
+			   << this->origin.transpose() << "], dir=["
+			   << this->direction.transpose() << "] >"
 			   << std::endl;
 		};
 };

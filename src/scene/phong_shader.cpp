@@ -2,7 +2,6 @@
 #include <color/color.h>
 #include <scene/light.h>
 #include <Eigen/Dense>
-#include <vector>
 #include <cmath>
 
 /**
@@ -35,53 +34,46 @@ color_t phong_shader_t::compute_phong(
 				const Eigen::Vector3f& P,
 				const Eigen::Vector3f& N,
 				const Eigen::Vector3f& V,
-				const std::vector<light_t>& lights) const
+				const light_t& light) const
 {
 	Vector3f L, R;
-	color_t C, C_final;
+	color_t C;
 	float lndot;
-	size_t i, n;
 
-	/* iterate over the light sources */
-	n = lights.size();
-	for(i = 0; i < n; i++)
-	{
-		/* initialize color result for this light */
-		C.set(0.0f,0.0f,0.0f);
+	/* initialize color result for this light */
+	C.set(0.0f,0.0f,0.0f);
 
-		/*---------------------*/
-		/* add ambient shading */
-		/*---------------------*/
+	/*---------------------*/
+	/* add ambient shading */
+	/*---------------------*/
 		
-		C += this->ka;
+	C += this->ka;
 
-		/*---------------------*/
-		/* add diffuse shading */
-		/*---------------------*/
+	/*---------------------*/
+	/* add diffuse shading */
+	/*---------------------*/
+	
+	/* direction from light to surface */
+	L = light.get_direction(P);
+	lndot = L.dot(N);
 		
-		/* direction from light to surface */
-		L = lights[i].get_direction(P);
-		lndot = L.dot(N);
+	/* add lighting */
+	C += this->kd * std::max(-lndot, 0.0f);
+
+	/*---------------------*/
+	/* add specular shading */
+	/*---------------------*/
 		
-		/* add lighting */
-		C += this->kd * std::max(-lndot, 0.0f);
+	/* compute the reflectance direction */
+	R = L - 2*lndot*N;
 
-		/*---------------------*/
-		/* add specular shading */
-		/*---------------------*/
-		
-		/* compute the reflectance direction */
-		R = L - 2*lndot*N;
+	/* add lighting */
+	C += this->ks * powf(std::max(R.dot(V), 0.0f), this->p);
 
-		/* add lighting */
-		C += this->ks * powf(std::max(R.dot(V), 0.0f), this->p);
+	/* apply result to the original light color, and 
+	 * add to final color for surface */
+	C *= light.get_color();
 
-		/* apply result to the original light color, and 
-		 * add to final color for surface */
-		C *= lights[i].get_color();
-		C_final += C;
-	}
-
-	/* return the sum of colors from all lights */
-	return C_final;
+	/* return the final constructed color for this light */
+	return C;
 }

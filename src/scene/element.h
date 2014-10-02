@@ -46,7 +46,14 @@ class element_t
 		 */
 		element_t()
 		{
+			/* currently has no shape */
 			this->shape = NULL;
+
+			/* set some default texture */
+			this->shader.ka.set(0.1f, 0.1f, 0.1f);
+			this->shader.kd.set(0.9f, 0.2f, 0.2f);
+			this->shader.ks.set(1.0f, 1.0f, 1.0f);
+			this->shader.p = 255.0f;
 		};
 
 		/**
@@ -91,6 +98,15 @@ class element_t
 		 * this model's shader, so it can be manipulated
 		 */
 		inline phong_shader_t& get_shader()
+		{ return this->shader; };
+		
+		/**
+		 * Retrieves the shader for this model
+		 *
+		 * Will retrieve a constant reference to
+		 * this model's shader.
+		 */
+		const inline phong_shader_t& get_shader() const
 		{ return this->shader; };
 };
 

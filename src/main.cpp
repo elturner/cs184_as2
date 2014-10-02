@@ -29,14 +29,17 @@ int main(int argc, char** argv)
 	// TODO do a basic test
 	size_t r, c, width, height;
 	float u, v;
-	width = height = 200;
+	width = height = 2000;
 	canvas.set_size(width, height);
 	scene.init("");
 	for(r = 0; r < height; r++)
 		for(c = 0; c < width; c++)
 		{
-			u = 1.0f * c / width;
-			v = 1.0f * r / height;
+			/* sample a coordinate from the pixel */
+			u = ((1.0f * (c + 0.5f)) / width);
+			v = ((1.0f * (r + 0.5f)) / height);
+
+			/* raytrace for this pixel */
 			canvas.add_pixel(c, r, scene.trace(u, v));
 		}
 	canvas.writepng("unittest2.png");

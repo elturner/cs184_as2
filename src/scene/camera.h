@@ -51,25 +51,20 @@ class camera_t
 		 * Default camera constructor
 		 */
 		camera_t() 
-			: eye(0.0f,0.0f,1.0f),
+			: eye(0.0f,0.0f,3.0f),
 			  UL(-1.0f, 1.0f,0.0f), UR( 1.0f, 1.0f,0.0f),
 			  LL(-1.0f,-1.0f,0.0f), LR( 1.0f,-1.0f,0.0f)
 		{};
 
 		/*-----------*/
-		/* modifiers */
+		/* accessors */
 		/*-----------*/
 
-		/** 
-		 * Sets the camera parameters
-		 *
-		 * @param e     The eye-center position of camera
-		 * @param d     The viewing direction of camera
-		 * @param hFOV  The horizontal field of view (radians)
-		 * @param vFOV  The vertical field of view (radians)
+		/**
+		 * Retrieves the eye position of the camera
 		 */
-		void set(const Eigen::Vector3f& e, const Eigen::Vector3f& d,
-				float hFOV, float vFOV);
+		inline const Eigen::Vector3f get_eye() const
+		{ return this->eye; };
 
 		/*----------*/
 		/* geometry */

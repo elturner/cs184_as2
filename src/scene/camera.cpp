@@ -22,12 +22,6 @@ using namespace Eigen;
 /* function implementations */
 /*--------------------------*/
 
-void camera_t::set(const Eigen::Vector3f& e, const Eigen::Vector3f& d,
-				float hFOV, float vFOV)
-{
-	// TODO implement me
-}
-		
 void camera_t::get_ray(ray_t& ray, float u, float v) const
 {
 	Vector3f p;
@@ -52,5 +46,5 @@ void camera_t::get_ray(ray_t& ray, float u, float v) const
 		+ u*(  v*(this->LR) + (1-v)*(this->UR)  );
 
 	/* generate ray */
-	ray.set(this->eye, p);
+	ray.set(this->eye, p - this->eye);
 }

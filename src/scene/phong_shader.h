@@ -16,7 +16,6 @@
 #include <color/color.h>
 #include <scene/light.h>
 #include <Eigen/Dense>
-#include <vector>
 
 /**
  * This class is used to represent a material, and
@@ -67,7 +66,7 @@ class phong_shader_t
 		 *                 world coordinates.
 		 * @param V        The direction from the surface 
 		 *                 to the viewer.
-		 * @param lights   The list of light sources in the scene.
+		 * @param light    The light source to use.
 		 * 
 		 * @return   Returns the observed surface color
 		 */
@@ -75,7 +74,7 @@ class phong_shader_t
 				const Eigen::Vector3f& P,
 				const Eigen::Vector3f& N,
 				const Eigen::Vector3f& V,
-				const std::vector<light_t>& lights) const;
+				const light_t& light) const;
 
 };
 
