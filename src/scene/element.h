@@ -59,17 +59,10 @@ class element_t
 		/**
 		 * Frees all memory and resources
 		 *
-		 * Elements will delete their own shapes
+		 * Elements will NOT delete their own shapes
 		 */
 		~element_t()
-		{
-			/* check if we need to free memory for shape */
-			if(this->shape != NULL)
-			{
-				delete (this->shape);
-				this->shape = NULL;
-			}
-		};
+		{};
 
 		/*-----------*/
 		/* accessors */
@@ -105,7 +98,16 @@ class element_t
 		 * Will retrieve a constant reference to
 		 * this model's shader.
 		 */
-		const inline phong_shader_t& get_shader() const
+		inline const phong_shader_t& get_shader() const
+		{ return this->shader; };
+		
+		/**
+		 * Retrieves the shader for this model
+		 *
+		 * Will retrieve a non-constant reference to
+		 * this model's shader, for modifying
+		 */
+		inline phong_shader_t& get_shader()
 		{ return this->shader; };
 };
 

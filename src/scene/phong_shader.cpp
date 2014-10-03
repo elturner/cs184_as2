@@ -27,6 +27,7 @@ phong_shader_t::phong_shader_t()
 	this->ka.set(0.0f, 0.0f, 0.0f);
 	this->kd.set(0.0f, 0.0f, 0.0f);
 	this->ks.set(0.0f, 0.0f, 0.0f);
+	this->kr.set(0.0f, 0.0f, 0.0f);
 	this->p = 1.0f;
 }
 

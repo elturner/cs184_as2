@@ -46,6 +46,11 @@ class phong_shader_t
 		 */
 		float p;
 
+		/**
+		 * The reflective color coefficients
+		 */
+		color_t kr;
+
 	/* functions */
 	public:
 
@@ -61,7 +66,7 @@ class phong_shader_t
 		 */
 		phong_shader_t(const phong_shader_t& other)
 			: ka(other.ka), kd(other.kd),
-			  ks(other.ks), p(other.p)
+			  ks(other.ks), p(other.p), kr(other.kr)
 		{};
 
 		/**
@@ -103,6 +108,7 @@ class phong_shader_t
 			this->kd = other.kd;
 			this->ks = other.ks;
 			this->p  = other.p;
+			this->kr = other.kr;
 
 			/* return the modified object */
 			return (*this);

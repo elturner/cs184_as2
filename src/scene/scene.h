@@ -55,6 +55,11 @@ class scene_t
 		 */
 		camera_t camera;
 
+		/**
+		 * The recursion depth for reflective surfaces
+		 */
+		int recursion_depth;
+
 	/* functions */
 	public:
 
@@ -66,7 +71,12 @@ class scene_t
 		 * Constructs default scene
 		 */
 		scene_t();
-	
+
+		/**
+		 * Frees all memory and resources in the scene
+		 */
+		~scene_t();
+
 		/**
 		 * Initializes a scene from the given input file
 		 *
@@ -136,6 +146,21 @@ class scene_t
 		 * @return     Returns the final color observed by this ray
 		 */
 		color_t trace(float u, float v) const;
+
+		/**
+		 * Traces the specified ray through the scene
+		 *
+		 * Given a ray, will determine the color seen by
+		 * that ray in the scene.  We can also specify
+		 * the number of times to recurse, in case that ray
+		 * bounces off of reflective elements.
+		 *
+		 * @param ray    The ray to trace
+		 * @param r      The number of times to recurse
+		 *
+		 * @return       Returns the final color observed by the ray
+		 */
+		color_t trace(const ray_t& ray, int r) const;
 
 		/*-----------*/
 		/* debugging */

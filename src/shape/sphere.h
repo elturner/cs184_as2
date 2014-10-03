@@ -15,6 +15,7 @@
 #include <shape/shape.h>
 #include <Eigen/Dense>
 #include <algorithm>
+#include <iostream>
 
 /**
  * The sphere_t class is used to represent the geometry of a sphere
@@ -207,7 +208,7 @@ class sphere_t : public shape_t
 
 			/* compute the normal of the sphere at this
 			 * point on its surface */
-			n = (r.point_at(t) - this->center);
+			n = (r.point_at(t) - this->center) / this->radius;
 			n.normalize();
 
 			/* we intersected */

@@ -31,9 +31,9 @@ int main(int argc, char** argv)
 	// TODO do a basic test
 	size_t r, c, width, height;
 	float u, v;
-	width = height = 2000;
+	width = height = 500;
 	canvas.set_size(width, height);
-	sampler.init(width, height, 3);
+	sampler.init(width, height, 5);
 	scene.init("");
 	while(!(sampler.is_done()))
 	{
