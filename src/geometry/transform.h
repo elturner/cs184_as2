@@ -29,17 +29,36 @@ class transform_t
 		 * to world coordinates */
 		Eigen::Matrix4f H; /* homogenous matrix */
 
+		/**
+		 * The following is a cached version of the inverse
+		 * of H
+		 */
+		Eigen::Matrix4f H_inv;
+
 	/* functions */
 	public:
 
-		/* the pose list is an array that contains eigen 
-		 * constructions, so it must be properly aligned */
+		/*--------------*/
+		/* constructors */
+		/*--------------*/
+
+		/* contains eigen constructions, so it must be 
+		 * properly aligned */
 		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 		/**
 		 * Initializes identity transformation
 		 */
 		transform_t();
+		
+		/**
+		 * Initializes transform from given other transform
+		 *
+		 * @param other   The other transform to copy
+		 */
+		transform_t(const transform_t& other)
+			: H(other.H), H_inv(other.H_inv)
+		{};
 
 		/**
 		 * Frees all memory and resources.
@@ -105,30 +124,62 @@ class transform_t
 		 * Consider the following example:
 		 *
 		 * A2B.cat(B2C)
-		 * A2C = A2B
+		 * ("A2B" is now the transform from A to C)
 		 *
 		 * @param t    The transform to post-apply to this one
 		 */
 		void cat(const transform_t& t);
 
 		/**
+		 * Applies this transform to the given point
+		 *
+		 * Given a point in 3D space, will apply the transform
+		 * to the point and return the modified version of the 
+		 * point.
+		 *
+		 * @param p    The point to modify
+		 *
+		 * @return     The modified version of the point.
+		 */
+		Eigen::Vector3f apply(const Eigen::Vector3f& p) const;
+
+		/**
+		 * Applies the inverset of this transform to the given point
+		 *
+		 * Given a point in 3D space, will apply the inverse 
+		 * of this transform to the point and return the modified 
+		 * version of the point.
+		 *
+		 * @param p    The point to modify
+		 *
+		 * @return     The modified version of the point.
+		 */
+		Eigen::Vector3f apply_inverse(
+					const Eigen::Vector3f& p) const;
+
+		/**
 		 * Applies this transform to the given ray
 		 *
-		 * Given a ray, this transform will be applied in-place.
+		 * Given a ray, this transform will be applied, and the 
+		 * a modified version of the ray will be returned.
 		 *
 		 * @param ray   The ray to transform.
+		 *
+		 * @return      The transformed ray
 		 */
-		void apply(ray_t& ray) const;
+		ray_t apply(const ray_t& ray) const;
 
 		/**
 		 * Applies the inverse of this transform to the given ray
 		 *
-		 * Will apply the inverse of this transform in-place on the
-		 * specified ray.
+		 * Will apply the inverse of this transform and returns the
+		 * modified version of the ray.
 		 *
-		 * @param ray   The ray to modify.
+		 * @param ray   The ray to transform.
+		 *
+		 * @return      The transformed ray
 		 */
-		void apply_inverse(ray_t& ray) const;
+		ray_t apply_inverse(const ray_t& ray) const;
 
 		/*-----------*/
 		/* operators */
@@ -147,6 +198,7 @@ class transform_t
 		{
 			/* copy params */
 			this->H = rhs.H;
+			this->H_inverse = rhs.H_inverse;
 
 			/* return the value of this point */
 			return (*this);
