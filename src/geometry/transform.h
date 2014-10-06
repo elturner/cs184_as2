@@ -2,34 +2,32 @@
 #define TRANSFORM_H
 
 /**
- * @file transform.h
+ * @file   transform.h
  * @author Eric Turner <elturner@eecs.berkeley.edu>
+ * @brief  THis class represents a transform in homogenous coordinates
  *
  * @section DESCRIPTION
  *
  * This file defines the transform_t class, which is used
- * to represent a rigid-body transform between coordinate
+ * to represent a linear transform between coordinate
  * systems.
  */
 
-#include <vector>
-#include <string>
+#include <shape/ray.h>
 #include <Eigen/Dense>
-#include <Eigen/Geometry>
 
-/* the transform_t class represents rigid-body transformations */
+/**
+ * the transform_t class represents rigid-body transformations
+ */
 class transform_t
 {
 	/* parameters */
 	public:
 
-		/* Translation vector of this transformation */
-		Eigen::Vector3d T; /* meters */
-		
 		/* The following specify the orientation of the scanner
 		 * at this pose as a rotation from system coordinates
 		 * to world coordinates */
-		Eigen::Matrix3d R; /* rotation matrix */
+		Eigen::Matrix4f H; /* homogenous matrix */
 
 	/* functions */
 	public:
@@ -48,26 +46,53 @@ class transform_t
 		 */
 		~transform_t();
 
-		/* geometry */
+		/*-----------*/
+		/* modifiers */
+		/*-----------*/
 
 		/**
-		 * Sets the transform based on translation and rotations
-		 *
-		 * Given a translation as a vector of three values (x,y,z),
-		 * and a rotation as a vector of three values (roll, pitch,
-		 * yaw), will populate this transform with the appropriate
-		 * values to represent these inputs.
-		 *
-		 * These values should be in meters and radians, 
-		 * respectively.
-		 *
-		 * @param tToCommon   The translation values (x, y, z)
-		 * @param rToCommon   The rotation angles (roll, pitch, yaw)
-		 *
-		 * @return    Returns zero on success, non-zero on failure.
+		 * Resets rotation to identity
 		 */
-		int set(const std::vector<double>& tToCommon,
-		        const std::vector<double>& rToCommon);
+		void reset();
+
+		/**
+		 * Sets this transform to the given translation
+		 *
+		 * Any existing data in this transform will be deleted.
+		 *
+		 * @param tx   The x-component of the translation to set
+		 * @param ty   The y-component of the translation to set
+		 * @param tz   The z-component of the translation to set
+		 */
+		void set_translation(float tx, float ty, float tz);
+
+		/**
+		 * Sets this transform to the given scale
+		 *
+		 * Any existing data in this transform will be deleted.
+		 *
+		 * @param sx   The x-component of the scale to set
+		 * @param sy   The y-component of the scale to set
+		 * @param sz   The z-component of the scale to set
+		 */
+		void set_scale(float sx, float sy, float sz);
+
+		/**
+		 * Sets this transform to the given rotation
+		 *
+		 * Any existing data in this transform will be deleted.
+		 * The input values should be in units of degrees, and
+		 * represented as the components of an exponential map.
+		 *
+		 * @param rx   The x-component of the exponential map
+		 * @param ry   The y-component of the exponential map
+		 * @param rz   The z-component of the exponential map
+		 */
+		void set_rotation(float rx, float ry, float rz);
+		
+		/*----------*/
+		/* geometry */
+		/*----------*/
 
 		/**
 		 * Concatenates two transforms
@@ -87,47 +112,27 @@ class transform_t
 		void cat(const transform_t& t);
 
 		/**
-		 * Applies this transform to the given list of points
+		 * Applies this transform to the given ray
 		 *
-		 * Given a list of points, represented as columns in
-		 * the input matrix, this transform will be applied
-		 * in-place to these points.
+		 * Given a ray, this transform will be applied in-place.
 		 *
-		 * @param pts   The points to transform in-place
+		 * @param ray   The ray to transform.
 		 */
-		void apply(Eigen::MatrixXd& pts) const;
+		void apply(ray_t& ray) const;
 
 		/**
-		 * Applies this transform to the given 3D point
-		 *
-		 * Given a point, this transform will be applied in-place.
-		 *
-		 * @param p   The point to transform.
-		 */
-		void apply(Eigen::Vector3d& p) const;
-
-		/**
-		 * Applies the inverse of this transform to given list
-		 *
-		 * Given a list of points, represented as columns in
-		 * the input matrix, the inverse of this transform will
-		 * be applied in-place to these points.
-		 *
-		 * @param pts    The points to trnasform in-place
-		 */
-		void apply_inverse(Eigen::MatrixXd& pts) const;
-
-		/**
-		 * Applies the inverse of this transform to the given point
+		 * Applies the inverse of this transform to the given ray
 		 *
 		 * Will apply the inverse of this transform in-place on the
-		 * specified point p.
+		 * specified ray.
 		 *
-		 * @param p   The point to modify.
+		 * @param ray   The ray to modify.
 		 */
-		void apply_inverse(Eigen::Vector3d& p) const;
+		void apply_inverse(ray_t& ray) const;
 
+		/*-----------*/
 		/* operators */
+		/*-----------*/
 
 		/**
 		 * Sets value of this transform to argument
@@ -141,8 +146,7 @@ class transform_t
 		inline transform_t operator = (const transform_t& rhs)
 		{
 			/* copy params */
-			this->T = rhs.T;
-			this->R = rhs.R;
+			this->H = rhs.H;
 
 			/* return the value of this point */
 			return (*this);
