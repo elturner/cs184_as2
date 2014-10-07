@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	float u, v;
 	width = height = 500;
 	canvas.set_size(width, height);
-	sampler.init(width, height, 5);
+	sampler.init(width, height, 3);
 	scene.init("");
 	while(!(sampler.is_done()))
 	{

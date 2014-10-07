@@ -32,12 +32,12 @@ phong_shader_t::phong_shader_t()
 }
 
 color_t phong_shader_t::compute_phong(
-				const Eigen::Vector3f& P,
 				const Eigen::Vector3f& N,
 				const Eigen::Vector3f& V,
-				const light_t& light) const
+				const Eigen::Vector3f& L,
+				const color_t& I) const
 {
-	Vector3f L, R;
+	Vector3f R;
 	color_t C;
 	float lndot;
 
@@ -54,11 +54,8 @@ color_t phong_shader_t::compute_phong(
 	/* add diffuse shading */
 	/*---------------------*/
 	
-	/* direction from light to surface */
-	L = light.get_direction(P);
-	lndot = L.dot(N);
-		
 	/* add lighting */
+	lndot = L.dot(N);
 	C += this->kd * std::max(-lndot, 0.0f);
 
 	/*---------------------*/
@@ -73,7 +70,7 @@ color_t phong_shader_t::compute_phong(
 
 	/* apply result to the original light color, and 
 	 * add to final color for surface */
-	C *= light.get_color();
+	C *= I;
 
 	/* return the final constructed color for this light */
 	return C;

@@ -144,7 +144,7 @@ class transform_t
 		Eigen::Vector3f apply(const Eigen::Vector3f& p) const;
 
 		/**
-		 * Applies the inverset of this transform to the given point
+		 * Applies the inverse of this transform to the given point
 		 *
 		 * Given a point in 3D space, will apply the inverse 
 		 * of this transform to the point and return the modified 
@@ -158,16 +158,51 @@ class transform_t
 					const Eigen::Vector3f& p) const;
 
 		/**
+		 * Applies this transform to the given normal vector
+		 *
+		 * Given a normal vector, will apply the transform
+		 * and return the modified version of the normal
+		 * vector.  The output normal vector will be renormalized.
+		 *
+		 * It is assumed the input vector is already normalized.
+		 *
+		 * @param n   The normal vector to modify
+		 *
+		 * @return    The modified normal vector
+		 */
+		Eigen::Vector3f apply_normal(
+					const Eigen::Vector3f& n) const;
+
+		/**
+		 * Applies the inverse of this transformation to the
+		 * given normal vector.
+		 *
+		 * Given a normal vector, will apply the inverse of
+		 * this transform and return the modified normal vector.
+		 * The output normal vector will be renormalized.
+		 *
+		 * It is assumed the input vector is already normalized
+		 *
+		 * @param n   The normal vector to modify
+		 *
+		 * @return    The modified normal vector
+		 */
+		Eigen::Vector3f apply_normal_inverse(
+					const Eigen::Vector3f& n) const;
+
+		/**
 		 * Applies this transform to the given ray
 		 *
 		 * Given a ray, this transform will be applied, and the 
 		 * a modified version of the ray will be returned.
 		 *
 		 * @param ray   The ray to transform.
+		 * @param s     The distance scaling from original to new
 		 *
 		 * @return      The transformed ray
 		 */
 		ray_t apply(const ray_t& ray) const;
+		ray_t apply(const ray_t& ray, float& s) const;
 
 		/**
 		 * Applies the inverse of this transform to the given ray
@@ -176,10 +211,12 @@ class transform_t
 		 * modified version of the ray.
 		 *
 		 * @param ray   The ray to transform.
+		 * @param s     The distance scaling from original to new
 		 *
 		 * @return      The transformed ray
 		 */
 		ray_t apply_inverse(const ray_t& ray) const;
+		ray_t apply_inverse(const ray_t& ray, float& s) const;
 
 		/*-----------*/
 		/* operators */
@@ -198,7 +235,7 @@ class transform_t
 		{
 			/* copy params */
 			this->H = rhs.H;
-			this->H_inverse = rhs.H_inverse;
+			this->H_inv = rhs.H_inv;
 
 			/* return the value of this point */
 			return (*this);

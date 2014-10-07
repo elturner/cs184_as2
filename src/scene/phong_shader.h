@@ -76,20 +76,21 @@ class phong_shader_t
 		 * NOTE:  all directions are assumed to be normalized
 		 * vectors.
 		 *
-		 * @param P        The point on surface to analyze
 		 * @param N        The normal of the surface, in 
 		 *                 world coordinates.
 		 * @param V        The direction from the surface 
 		 *                 to the viewer.
-		 * @param light    The light source to use.
+		 * @param L        The direction from light source to
+		 *                 surface
+		 * @param I        The color of the light source
 		 * 
 		 * @return   Returns the observed surface color
 		 */
 		color_t compute_phong(
-				const Eigen::Vector3f& P,
 				const Eigen::Vector3f& N,
 				const Eigen::Vector3f& V,
-				const light_t& light) const;
+				const Eigen::Vector3f& L,
+				const color_t& I) const;
 
 		/**
 		 * Copies value of given shader

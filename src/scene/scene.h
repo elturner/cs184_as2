@@ -14,6 +14,7 @@
  */
 
 #include <color/color.h>
+#include <geometry/transform.h>
 #include <scene/light.h>
 #include <scene/camera.h>
 #include <scene/element.h>
@@ -60,6 +61,13 @@ class scene_t
 		 */
 		int recursion_depth;
 
+		/**
+		 * For debugging purposes.  If this value is
+		 * true, will render the normal map, instead of
+		 * phong shading.
+		 */
+		bool render_normal_shading;
+
 	/* functions */
 	public:
 
@@ -102,13 +110,16 @@ class scene_t
 		 * Adds an element to the scene
 		 *
 		 * @param shape     The shape of the element to add
+		 * @param transform The transform to apply to this element
 		 * @param shader    The shader properties of the element
 		 */
-		inline void add(shape_t* shape, 
+		inline void add(shape_t* shape,
+				const transform_t& transform,
 				const phong_shader_t& shader)
 		{ 
 			this->elements.resize(this->elements.size()+1);
-			this->elements.back().set(shape);
+			this->elements.back().set_shape(shape);
+			this->elements.back().set_transform(transform);
 			this->elements.back().set_shader(shader);
 		};
 

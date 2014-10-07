@@ -10,6 +10,7 @@ EXECUTABLE = as2
 
 SOURCES =	include/lodepng/lodepng.cpp \
 		src/util/cmd_args.cpp \
+		src/geometry/transform.cpp \
 		src/scene/phong_shader.cpp \
 		src/scene/camera.cpp \
 		src/scene/scene.cpp \
@@ -24,6 +25,7 @@ HEADERS =	include/lodepng/lodepng.h \
 		src/shape/sphere.h \
 		src/shape/shape.h \
 		src/shape/ray.h \
+		src/geometry/transform.h \
 		src/scene/light.h \
 		src/scene/phong_shader.h \
 		src/scene/element.h \

@@ -55,7 +55,7 @@ scene_t::~scene_t()
 
 		/* free the shape */
 		delete (this->elements[i].get_shape());
-		this->elements[i].set(NULL);
+		this->elements[i].set_shape(NULL);
 	}
 	this->elements.clear();
 
@@ -69,31 +69,53 @@ int scene_t::init(const std::string& filename)
 
 	// TODO debugging:  hard-code a scene
 	this->elements.resize(7);
-	this->elements[0].set(new sphere_t(5.0f,-6.0f,-36.0f,2.0f));
+	
+	this->elements[0].set_shape(new sphere_t(0.0f,0.0f,0.0f,2.0f));
 	this->elements[0].get_shader().kd.set(0.0f, 1.0f, 0.0f);
-	this->elements[1].set(new sphere_t(1.0f,10.0f,-55.0f,10.0f));
+	transform_t trans;
+	trans.set_scale(1.5,1,1.5);
+//	this->elements[0].get_transform().cat(trans);
+	trans.set_rotation(0,45,-45);
+//	this->elements[0].get_transform().cat(trans);
+	trans.set_translation(5.0f,-6.0f,-36.0f);
+	this->elements[0].get_transform().cat(trans);
+
+	this->elements[1].set_shape(new sphere_t(1.0f,10.0f,-55.0f,10.0f));
 	this->elements[1].get_shader().ka.set(0.0f, 0.0f, 0.0f);
 	this->elements[1].get_shader().kd.set(0.0f, 0.0f, 0.0f);
 	this->elements[1].get_shader().ks.set(0.9f, 0.9f, 0.9f);
 	this->elements[1].get_shader().p = 1000;
 	this->elements[1].get_shader().kr.set(0.9f, 0.9f, 0.9f);
-	this->elements[2].set(new sphere_t(-12.0f,2.0f,-44.0f,2.0f));
+	trans.set_scale(2.0f,0.25f,1.0f);
+	this->elements[1].get_transform().cat(trans);
+	trans.set_rotation(0,0,90);
+	this->elements[1].get_transform().cat(trans);
+	trans.set_translation(1.0f,0.0f,3.0f);
+	this->elements[1].get_transform().cat(trans);
+
+	this->elements[2].set_shape(new sphere_t(-12.0f,2.0f,-44.0f,2.0f));
 	this->elements[2].get_shader().kd.set(0.0f, 0.0f, 1.0f);
-	this->elements[3].set(new sphere_t(15.0f,-5.0f,-67.0f,5.0f));
+
+	this->elements[3].set_shape(new sphere_t(15.0f,-5.0f,-67.0f,5.0f));
 	this->elements[3].get_shader().ka.set(0.0f, 0.0f, 0.0f);
 	this->elements[3].get_shader().kd.set(0.0f, 0.0f, 0.0f);
 	this->elements[3].get_shader().ks.set(0.9f, 0.9f, 0.9f);
 	this->elements[3].get_shader().p = 1000;
 	this->elements[3].get_shader().kr.set(0.9f, 0.9f, 0.9f);
-	this->elements[4].set(new sphere_t(-10.0f,-4.0f,-47.0f,6.0f));
+
+	this->elements[4].set_shape(new sphere_t(-10.0f,-4.0f,-47.0f,6.0f));
 	this->elements[4].get_shader().ka.set(0.0f, 0.0f, 0.0f);
 	this->elements[4].get_shader().kd.set(0.0f, 0.0f, 0.0f);
 	this->elements[4].get_shader().ks.set(0.9f, 0.9f, 0.9f);
 	this->elements[4].get_shader().p = 1000;
 	this->elements[4].get_shader().kr.set(0.9f, 0.9f, 0.9f);
-	this->elements[5].set(new sphere_t(5.0f,-4.0f,-35.0f,1.0f));
-	this->elements[6].set(new sphere_t(0.0f,-10000.0f,-25.0f,9990.0f));
+
+	this->elements[5].set_shape(new sphere_t(5.0f,-4.0f,-35.0f,1.0f));
+
+	this->elements[6].set_shape(
+			new sphere_t(0.0f,-10000.0f,-25.0f,9990.0f));
 	this->elements[6].get_shader().kd.set(0.8f, 0.8f, 0.8f);
+
 	this->lights.resize(3);
 	this->lights[0].set(true, Eigen::Vector3f(-5.0f, 10.0f, -22.0f));
 	this->lights[0].get_color().set(1.0f, 1.0f, 1.0f);
@@ -101,7 +123,9 @@ int scene_t::init(const std::string& filename)
 	this->lights[1].get_color().set(1.0f, 1.0f, 1.0f);
 	this->lights[2].set(true, Eigen::Vector3f(-1.0f, 10.0f, -27.0f));
 	this->lights[2].get_color().set(1.0f, 1.0f, 1.0f);
+
 	this->recursion_depth = 3;
+	this->render_normal_shading = false;
 
 	/* success */
 	return 0;
@@ -142,13 +166,8 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 	i_best = num_elems; /* invalid index */
 	for(i = 0; i < num_elems; i++)
 	{
-		/* ignore invalid elements */
-		if(this->elements[i].get_shape() == NULL)
-			continue;
-
 		/* check if the given ray intersects this element */
-		if(!(this->elements[i].get_shape()->intersects(t,
-						normal, ray,
+		if(!(this->elements[i].intersects(t, normal, ray,
 						0.0f, t_best)))
 			continue; /* no intersection */
 
@@ -161,7 +180,15 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 	/* check if we saw anything */
 	if(i_best == num_elems)
 		return result; /* this is a black color */
-	
+
+	/* for debugging purposes, we want the ability to render
+	 * the simplest representation of the scene.  If this
+	 * flag is set, then will render just the normal map of
+	 * the scene, without any advanced shading. */
+	if(this->render_normal_shading)
+		return this->elements[i_best].compute_normal_shading(
+						normal_best);
+
 	/* compute 3D position of intersection */
 	pos = ray.point_at(t_best);
 	viewdir = this->camera.get_eye() - pos;
@@ -184,8 +211,7 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 		{
 			/* check if the i'th element shadows this 
 			 * position */
-			if(!(this->elements[i].get_shape()->intersects(t,
-						normal, shadow,
+			if(!(this->elements[i].intersects(t, normal, shadow,
 						EPSILON, lightdist)))
 				continue; /* no intersection */
 
@@ -200,7 +226,7 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 			continue;
 
 		/* get color from this light on best surface */
-		curr = this->elements[i_best].get_shader().compute_phong(
+		curr = this->elements[i_best].compute_phong(
 				pos, normal_best, viewdir, this->lights[j]);
 
 		/* add current color to result */
