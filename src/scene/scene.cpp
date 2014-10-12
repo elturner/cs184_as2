@@ -4,6 +4,7 @@
 #include <shape/ray.h>
 #include <shape/shape.h>
 #include <shape/sphere.h>
+#include <shape/triangle.h>
 #include <scene/light.h>
 #include <scene/camera.h>
 #include <scene/element.h>
@@ -68,7 +69,7 @@ int scene_t::init(const std::string& filename)
 	// TODO implement me
 
 	// TODO debugging:  hard-code a scene
-	this->elements.resize(7);
+	this->elements.resize(8);
 	
 	this->elements[0].set_shape(new sphere_t(0.0f,0.0f,0.0f,2.0f));
 	this->elements[0].get_shader().kd.set(0.0f, 1.0f, 0.0f);
@@ -116,6 +117,11 @@ int scene_t::init(const std::string& filename)
 			new sphere_t(0.0f,-10000.0f,-25.0f,9990.0f));
 	this->elements[6].get_shader().kd.set(0.8f, 0.8f, 0.8f);
 
+	this->elements[7].set_shape(
+			new triangle_t(		-5.0f, -8.0f, -36.25f,
+						-9.0f, -12.0f, -32.25f,
+						-5.0f, -4.0f, -34.25f	));
+
 	this->lights.resize(3);
 	this->lights[0].set(true, Eigen::Vector3f(-5.0f, 10.0f, -22.0f));
 	this->lights[0].get_color().set(1.0f, 1.0f, 1.0f);
@@ -124,7 +130,7 @@ int scene_t::init(const std::string& filename)
 	this->lights[2].set(true, Eigen::Vector3f(-1.0f, 10.0f, -27.0f));
 	this->lights[2].get_color().set(1.0f, 1.0f, 1.0f);
 
-	this->recursion_depth = 3;
+	this->recursion_depth = 1;
 	this->render_normal_shading = false;
 
 	/* success */

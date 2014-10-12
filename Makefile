@@ -23,6 +23,7 @@ HEADERS =	include/lodepng/lodepng.h \
 		src/util/cmd_args.h \
 		src/color/color.h \
 		src/shape/sphere.h \
+		src/shape/triangle.h \
 		src/shape/shape.h \
 		src/shape/ray.h \
 		src/geometry/transform.h \
