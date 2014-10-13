@@ -89,10 +89,13 @@ class scene_t
 		 * Initializes a scene from the given input file
 		 *
 		 * @param filename   The file to parse
+		 * @param rd         The recursion depth to use
+		 * @param debug      If true, will render normal shading
 		 *
 		 * @return      Returns zero on success, non-zero on failure
 		 */
-		int init(const std::string& filename);
+		int init(const std::string& filename, 
+				int rd = 2, bool debug = false);
 
 		/*-----------*/
 		/* modifiers */

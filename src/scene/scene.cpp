@@ -64,8 +64,12 @@ scene_t::~scene_t()
 	this->lights.clear();
 }
 		
-int scene_t::init(const std::string& filename)
+int scene_t::init(const std::string& filename, int rd, bool debug)
 {
+	/* prepare scene parameters */
+	this->recursion_depth = rd;
+	this->render_normal_shading = debug;
+
 	// TODO implement me
 
 	// TODO debugging:  hard-code a scene
@@ -129,9 +133,6 @@ int scene_t::init(const std::string& filename)
 	this->lights[1].get_color().set(1.0f, 1.0f, 1.0f);
 	this->lights[2].set(true, Eigen::Vector3f(-1.0f, 10.0f, -27.0f));
 	this->lights[2].get_color().set(1.0f, 1.0f, 1.0f);
-
-	this->recursion_depth = 1;
-	this->render_normal_shading = false;
 
 	/* success */
 	return 0;

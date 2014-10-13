@@ -15,7 +15,6 @@
 
 #include <shape/shape.h>
 #include <Eigen/Dense>
-#include <algorithm>
 #include <iostream>
 
 /**
