@@ -75,6 +75,7 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 
 	transform_t trans;
 	phong_shader_t shader;
+	light_t light;
 
 	shader.ka.set(0.0f,0.0f,0.0f);
 	shader.kd.set(0.0f, 0.0f, 0.0f);
@@ -82,28 +83,41 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	shader.p = 1000;
 	shader.kr.set(0.9f, 0.9f, 0.9f);
 	trans.reset();
-	trans.append_translation(3.0f, 4.0f, -20.0f);
+	trans.append_translation(3.0f, 4.0f, -30.0f);
 	trans.append_rotation(45.0f, 45.0f, 45.0f);
 	trans.append_scale(5.0f, 1.0f, 1.0f);
 	this->add(new sphere_t(0.0f, 0.0f, 0.0f, 1.0f), trans, shader);
 
-	shader.ka.set(0.2f,0.1f,0.1f);
-	shader.kd.set(0.8f,0.3f,0.3f);
-	shader.ks.set(0.9f,0.5f,0.5f);
-	shader.p = 100;
-	shader.kr.set(0.2f,0.2f,0.2f);
 	trans.reset();
-	trans.append_scale(20.0f, 20.0f, 200.0f);
+	trans.append_translation(-5.0f, -9.0f, -45.0f);
+	trans.append_scale(5.0f, 5.0f, 5.0f);
+	this->add(new sphere_t(0.0f,0.0f,0.0f,1.0f), trans, shader);
+
+	shader.ka.set(0.1f,0.1f,0.1f);
+	shader.kd.set(0.4f,0.3f,0.3f);
+	shader.ks.set(0.4f,0.2f,0.2f);
+	shader.p = 1000;
+	shader.kr.set(0.1f,0.1f,0.1f);
+	trans.reset();
+	trans.append_scale(30.0f, 30.0f, 200.0f);
 	trans.append_translation(-0.5f,-0.5f,-0.5f);
 	this->add(mesh_io::mesh_t(string("input/cube.obj")), trans, shader);
 
-	this->lights.resize(3);
-	this->lights[0].set(true, Eigen::Vector3f(-5.0f, 10.0f, -22.0f));
-	this->lights[0].get_color().set(1.0f, 1.0f, 1.0f);
-	this->lights[1].set(true, Eigen::Vector3f(-1.0f, 10.0f, -22.0f));
-	this->lights[1].get_color().set(1.0f, 1.0f, 1.0f);
-	this->lights[2].set(true, Eigen::Vector3f(-1.0f, 10.0f, -27.0f));
-	this->lights[2].get_color().set(1.0f, 1.0f, 1.0f);
+	light.set_point(Eigen::Vector3f(-3.0f, 10.0f, -15.0f));
+	light.get_color().set(1.0f, 1.0f, 1.0f);
+	this->add(light);
+	
+	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -15.0f));
+	light.get_color().set(1.0f, 1.0f, 1.0f);
+	this->add(light);
+	
+	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -17.0f));
+	light.get_color().set(1.0f, 1.0f, 1.0f);
+	this->add(light);
+	
+	light.set_ambient();
+	light.get_color().set(0.2f, 0.2f, 0.2f);
+	this->add(light);
 
 	/* success */
 	return 0;
@@ -148,7 +162,7 @@ color_t scene_t::trace(float u, float v) const
 
 color_t scene_t::trace(const ray_t& ray, int r) const
 {
-	color_t result, curr;
+	color_t result;
 	ray_t shadow, bounce;
 	Vector3f pos, viewdir, normal, normal_best, lightdir;
 	size_t i, i_best, num_elems, j, num_lights;
@@ -204,6 +218,15 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 	
 	for(j = 0; j < num_lights; j++)
 	{
+		/* check if this is an ambient light source */
+		if(this->lights[j].is_ambient())
+		{
+			/* always apply ambient lights */
+			result += this->elements[i_best].compute_ambient(
+					this->lights[j]);
+			continue;
+		}
+
 		/* get direction from surface to this light */
 		lightdir = -(this->lights[j].get_direction(pos));
 		lightdist = this->lights[j].get_distance(pos);
@@ -225,16 +248,14 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 			break;
 		}
 
-		/* only proceed if we are not shadowed */
-		if(isshadowed)
-			continue;
-
-		/* get color from this light on best surface */
-		curr = this->elements[i_best].compute_phong(
+		/* apply effect of this light to scene */
+		if(!isshadowed)
+		{
+			/* get color from this light on best surface if
+			 * not shadowed */
+			result += this->elements[i_best].compute_phong(
 				pos, normal_best, viewdir, this->lights[j]);
-
-		/* add current color to result */
-		result += curr;
+		}
 	}	
 
 	/*---------------------------------------------------*/

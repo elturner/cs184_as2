@@ -26,8 +26,27 @@
  */
 class light_t
 {
+	/* constants */
+	public:
+
+		/* the types of lights in the scene */
+		enum LIGHT_TYPE
+		{
+			DIRECTIONAL_LIGHT,
+			POINT_LIGHT,
+			AMBIENT_LIGHT
+		};
+
 	/* parameters */
 	private:
+
+		/**
+		 * The type of this light.
+		 *
+		 * The light's type determines how the light behaves in
+		 * the scene.
+		 */
+		LIGHT_TYPE type;
 
 		/**
 		 * The vector of this light.
@@ -46,15 +65,6 @@ class light_t
 		 */
 		color_t color;
 
-		/**
-		 * Determines whether this light source is a
-		 * point source or a directional source.
-		 *
-		 * If true, then this is a point light source.
-		 * Otherwise, it is a directional light source.
-		 */
-		bool is_point;
-
 	/* functions */
 	public:
 
@@ -70,9 +80,9 @@ class light_t
 		 */
 		light_t()
 		{
+			this->type = DIRECTIONAL_LIGHT;
 			this->v << 1.0f, 0.0f, 0.0f;
 			this->color.set(1.0f, 1.0f, 1.0f);
-			this->is_point = false;
 		};
 
 		/**
@@ -81,15 +91,16 @@ class light_t
 		 * @param other  The other light to copy
 		 */
 		light_t(const light_t& other)
-			: v(other.v), 
-			  color(other.color), 
-			  is_point(other.is_point)
+			: type(other.type),
+			  v(other.v), 
+			  color(other.color)
 		{};
 
 		/**
 		 * Constructs light with specified parameters
 		 *
-		 * @param p   Specifies if light source is point or not
+		 * @param t   Specifies if light source is point, 
+		 *                directional, or ambient
 		 * @param x   The x-value of the vector
 		 * @param y   The y-value of the vector
 		 * @param z   The z-value of the vector
@@ -97,12 +108,12 @@ class light_t
 		 * @param g   The green-component of the color
 		 * @param b   The blue-component of the color
 		 */
-		light_t(bool p, float x, float y, float z, 
+		light_t(LIGHT_TYPE t, float x, float y, float z, 
 				float r, float g, float b)
-			: v(x,y,z), color(r,g,b), is_point(p)
+			: type(t), v(x,y,z), color(r,g,b)
 		{
 			/* if directional, normalize */
-			if(!(this->is_point))
+			if(this->type == DIRECTIONAL_LIGHT)
 				v.normalize();
 		};
 
@@ -129,8 +140,20 @@ class light_t
 		/**
 		 * Returns true if this is a point light source
 		 */
-		inline bool get_is_point() const
-		{ return this->is_point; };
+		inline bool is_point() const
+		{ return this->type == POINT_LIGHT; };
+
+		/**
+		 * Retruns true iff this is an ambient light source
+		 */
+		inline bool is_ambient() const
+		{ return this->type == AMBIENT_LIGHT; };
+
+		/**
+		 * Returns the type of this light.
+		 */
+		inline LIGHT_TYPE get_type() const
+		{ return this->type; };
 
 		/**
 		 * Gets the value vector
@@ -160,19 +183,29 @@ class light_t
 		inline Eigen::Vector3f get_direction(
 				const Eigen::Vector3f& p) const
 		{
-			Eigen::Vector3f L;
-
 			/* check what type of light source this is */
-			if(this->is_point)
+			switch(this->type)
 			{
-				/* need to compute displacement of
-				 * the point in order to determine the
-				 * direction of the light */
-				return (p - this->v).normalized();
+				case POINT_LIGHT:
+					/* need to compute displacement 
+					 * of the point in order to 
+					 * determine the direction of the 
+					 * light */
+					return (p - this->v).normalized();
+
+				case AMBIENT_LIGHT:
+					/* direction of light doesn't 
+					 * matter */
+
+				case DIRECTIONAL_LIGHT:
+					/* this is a directional light 
+					 * source, so v
+					 * is the direction.  */
+					return this->v;
 			}
 			
-			/* this is a directional light source */
-			return this->v; /* direction is constant */
+			/* should never get here */
+			return this->v;
 		};
 
 		/**
@@ -189,55 +222,59 @@ class light_t
 		 */
 		inline float get_distance(const Eigen::Vector3f& p) const
 		{
-			if(this->is_point)
-				return (p - this->v).norm();
-			else
-				return FLT_MAX;
+			/* get type of light */
+			switch(this->type)
+			{
+				case POINT_LIGHT:
+					/* distance to point */
+					return (p - this->v).norm();
+
+				case DIRECTIONAL_LIGHT:
+					/* directional lights are
+					 * infinitely far away */
+					return FLT_MAX;
+
+				case AMBIENT_LIGHT:
+					/* ambient lights are all
+					 * around us */
+					return 0;
+			}
+
+			/* should never get here */
+			return FLT_MAX;
 		};
 
 		/**
-		 * Sets the source of this light
+		 * Sets this light to a point light source
 		 *
-		 * @param ispoint  If true, this is a point light source,
-		 *                 otherwise it's a directional light source
-		 * @param val      If ispoint is true, this is the position
-		 *                 of the light source in 3D space.  If
-		 *                 ispoint is false, then this is the
-		 *                 direction of the directional light
-		 *                 source.
+		 * @param val      This is the position
+		 *                 of the light source in 3D space.
 		 */
-		inline void set(bool ispoint, const Eigen::Vector3f& val)
+		inline void set_point(const Eigen::Vector3f& val)
 		{
-			/* copy values */
-			this->is_point = ispoint;
+			this->type = POINT_LIGHT;
 			this->v = val;
-
-			/* if this is a directional light source, then
-			 * make sure it's a normalized vector */
-			if(!(this->is_point))
-				this->v.normalize();
-		}
+		};
 
 		/**
-		 * Rotates the light about the y-axis
+		 * Sets this light to a directional light source
 		 *
-		 * Will rotate the direction or position of the light
-		 * about the y-axis by the given amount.
-		 *
-		 * @param dtheta  The change in theta to rotate the light,
-		 *                in radians.
+		 * @param dir   The direction of this light
 		 */
-		void rotateY(float dtheta)
+		inline void set_directional(const Eigen::Vector3f& dir)
 		{
-			/* construct matrix */
-			Eigen::Matrix3f R;
-			R          << cos(dtheta),  0,  sin(dtheta),
-			              0,            1,  0,
-				      -sin(dtheta), 0,  cos(dtheta);
+			this->type = DIRECTIONAL_LIGHT;
+			this->v = dir;
+			this->v.normalize();
+		};
 
-			/* apply rotation */
-			this->v = R * this->v;
-
+		/**
+		 * Sets this light to an ambient light source
+		 */
+		inline void set_ambient()
+		{
+			this->type = AMBIENT_LIGHT;
+			this->v << 0.0f,0.0f,0.0f;
 		};
 };
 

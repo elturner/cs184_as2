@@ -205,6 +205,18 @@ class element_t
 		};
 
 		/**
+		 * Computes ambient light shading only on this object
+		 *
+		 * @param light   The light source to use
+		 *
+		 * @return  Returns the observed surface color
+		 */
+		inline color_t compute_ambient(const light_t& light) const
+		{
+			return (this->shader.ka * light.get_color());
+		};
+
+		/**
 		 * Computes the phong illumination model for the
 		 * specified point on a surface of the shape of this 
 		 * element.

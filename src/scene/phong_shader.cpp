@@ -48,7 +48,8 @@ color_t phong_shader_t::compute_phong(
 	/* add ambient shading */
 	/*---------------------*/
 		
-	C += this->ka;
+	// DON'T DO THIS, AMBIENT LIGHTING IS APPLIED SEPERATELY
+	// C += this->ka;
 
 	/*---------------------*/
 	/* add diffuse shading */
