@@ -11,6 +11,7 @@ EXECUTABLE = as2
 SOURCES =	include/lodepng/lodepng.cpp \
 		src/util/cmd_args.cpp \
 		src/io/raytrace_args.cpp \
+		src/io/mesh/mesh_io.cpp \
 		src/geometry/transform.cpp \
 		src/scene/phong_shader.cpp \
 		src/scene/camera.cpp \
@@ -23,6 +24,7 @@ HEADERS =	include/lodepng/lodepng.h \
 		src/util/error_codes.h \
 		src/util/cmd_args.h \
 		src/io/raytrace_args.h \
+		src/io/mesh/mesh_io.h \
 		src/color/color.h \
 		src/shape/sphere.h \
 		src/shape/triangle.h \

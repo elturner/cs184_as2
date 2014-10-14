@@ -1,5 +1,6 @@
 #include "scene.h"
 #include <util/error_codes.h>
+#include <io/mesh/mesh_io.h>
 #include <color/color.h>
 #include <shape/ray.h>
 #include <shape/shape.h>
@@ -136,6 +137,32 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 
 	/* success */
 	return 0;
+}
+		
+void scene_t::add(const mesh_io::mesh_t& mesh,
+			const transform_t& transform,
+				const phong_shader_t& shader)
+{
+	mesh_io::polygon_t poly;
+	size_t i, n;
+
+	/* Iterate over the polygons in this mesh.
+	 * For the purposes of this function, we assume that every
+	 * polygon is a triangle. */
+	n = mesh.num_polys();
+	for(i = 0; i < n; i++)
+	{
+		/* get this polygon */
+		poly = mesh.get_poly(i);
+		const mesh_io::vertex_t& a =mesh.get_vert(poly.vertices[0]);
+		const mesh_io::vertex_t& b =mesh.get_vert(poly.vertices[1]);
+		const mesh_io::vertex_t& c =mesh.get_vert(poly.vertices[2]);
+
+		/* add triangle to this scene based on the given polygon */
+		this->add(new triangle_t(a.x, a.y, a.z, 
+					b.x, b.y, b.z, 
+					c.x, c.y, c.z), transform, shader);
+	}
 }
 		
 color_t scene_t::trace(float u, float v) const

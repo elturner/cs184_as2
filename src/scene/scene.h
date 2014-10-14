@@ -13,6 +13,7 @@
  * lighting, and materials.
  */
 
+#include <io/mesh/mesh_io.h>
 #include <color/color.h>
 #include <geometry/transform.h>
 #include <scene/light.h>
@@ -125,6 +126,20 @@ class scene_t
 			this->elements.back().set_transform(transform);
 			this->elements.back().set_shader(shader);
 		};
+
+		/**
+		 * Adds the given mesh to the scene
+		 *
+		 * Will import all mesh elements as triangles, using
+		 * the given transform and shader.
+		 *
+		 * @param mesh       The mesh to import
+		 * @param transform  The transform to apply to this element
+		 * @param shader     The shader properties of this element
+		 */
+		void add(const mesh_io::mesh_t& mesh,
+				const transform_t& transform,
+				const phong_shader_t& shader);
 
 		/**
 		 * Retrieves the camera object reference, for modification
