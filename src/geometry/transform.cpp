@@ -65,6 +65,13 @@ void transform_t::set_translation(float tx, float ty, float tz)
 	this->H_inv = this->H.inverse();
 }
 		
+void transform_t::append_translation(float tx, float ty, float tz)
+{
+	transform_t arg;
+	arg.set_translation(tx, ty, tz);
+	this->cat(arg);
+}
+		
 void transform_t::set_scale(float sx, float sy, float sz)
 {
 	this->H <<   sx,  0.0f,  0.0f,  0.0f,
@@ -72,6 +79,13 @@ void transform_t::set_scale(float sx, float sy, float sz)
 	           0.0f,  0.0f,    sz,  0.0f,
 	           0.0f,  0.0f,  0.0f,  1.0f;
 	this->H_inv = this->H.inverse();
+}
+		
+void transform_t::append_scale(float sx, float sy, float sz)
+{
+	transform_t arg;
+	arg.set_scale(sx, sy, sz);
+	this->cat(arg);
 }
 
 void transform_t::set_rotation(float rx, float ry, float rz)
@@ -101,12 +115,21 @@ void transform_t::set_rotation(float rx, float ry, float rz)
 	           R(1,0), R(1,1), R(1,2), 0.0f,
 	           R(2,0), R(2,1), R(2,2), 0.0f,
 	             0.0f,   0.0f,   0.0f, 1.0f;
+	this->H_inv = this->H.inverse();
+}
+
+void transform_t::append_rotation(float rx, float ry, float rz)
+{
+	transform_t arg;
+	arg.set_rotation(rx, ry, rz);
+	this->cat(arg);
 }
 		
 void transform_t::cat(const transform_t& t)
 {
-	this->H = (t.H * this->H); 
-	this->H_inv = this->H.inverse();
+	/* post-multiply, in order to mimick a stack */
+	this->H = (this->H * t.H); 
+	this->H_inv = (t.H_inv * this->H_inv);
 }
 
 Eigen::Vector3f transform_t::apply(const Eigen::Vector3f& p) const

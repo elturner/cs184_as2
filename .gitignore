@@ -21,7 +21,6 @@
 #Ignore binary files
 *.exe
 *.exe.*
-*.obj
 *.bin
 *.dll
 *.lib

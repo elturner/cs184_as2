@@ -190,15 +190,6 @@ class scene_t
 		 * @return       Returns the final color observed by the ray
 		 */
 		color_t trace(const ray_t& ray, int r) const;
-
-		/*-----------*/
-		/* debugging */
-		/*-----------*/
-
-		/**
-		 * Prints out info about this scene
-		 */
-		void print_info() const;
 };
 
 #endif

@@ -86,6 +86,15 @@ class transform_t
 		void set_translation(float tx, float ty, float tz);
 
 		/**
+		 * Appends the given translation to this existing transform
+		 *
+		 * @param tx   The x-component of the translation to set
+		 * @param ty   The y-component of the translation to set
+		 * @param tz   The z-component of the translation to set
+		 */
+		void append_translation(float tx, float ty, float tz);
+
+		/**
 		 * Sets this transform to the given scale
 		 *
 		 * Any existing data in this transform will be deleted.
@@ -95,6 +104,15 @@ class transform_t
 		 * @param sz   The z-component of the scale to set
 		 */
 		void set_scale(float sx, float sy, float sz);
+		
+		/**
+		 * Appends the given scale to this existing transform
+		 *
+		 * @param sx   The x-component of the scale to set
+		 * @param sy   The y-component of the scale to set
+		 * @param sz   The z-component of the scale to set
+		 */
+		void append_scale(float sx, float sy, float sz);
 
 		/**
 		 * Sets this transform to the given rotation
@@ -109,6 +127,19 @@ class transform_t
 		 */
 		void set_rotation(float rx, float ry, float rz);
 		
+		/**
+		 * Appends the given rotation to this existing transform
+		 *
+		 * Any existing data in this transform will be deleted.
+		 * The input values should be in units of degrees, and
+		 * represented as the components of an exponential map.
+		 *
+		 * @param rx   The x-component of the exponential map
+		 * @param ry   The y-component of the exponential map
+		 * @param rz   The z-component of the exponential map
+		 */
+		void append_rotation(float rx, float ry, float rz);
+		
 		/*----------*/
 		/* geometry */
 		/*----------*/
@@ -118,8 +149,11 @@ class transform_t
 		 *
 		 * Will concatenate the specified transform to this one,
 		 * and store the result in-place.  Applying the resulting
-		 * transform is equivalent to applying the original, and
-		 * then the argument transform.
+		 * transform is equivalent to applying the argument, and
+		 * then applying the original.
+		 *
+		 * The original transform will be modified by 
+		 * post-multiplying the argument.
 		 *
 		 * Consider the following example:
 		 *

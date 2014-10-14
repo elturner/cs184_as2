@@ -73,59 +73,29 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 
 	// TODO implement me
 
-	// TODO debugging:  hard-code a scene
-	this->elements.resize(8);
-	
-	this->elements[0].set_shape(new sphere_t(0.0f,0.0f,0.0f,2.0f));
-	this->elements[0].get_shader().kd.set(0.0f, 1.0f, 0.0f);
 	transform_t trans;
-	trans.set_scale(1.5,1,1.5);
-//	this->elements[0].get_transform().cat(trans);
-	trans.set_rotation(0,45,-45);
-//	this->elements[0].get_transform().cat(trans);
-	trans.set_translation(5.0f,-6.0f,-36.0f);
-	this->elements[0].get_transform().cat(trans);
+	phong_shader_t shader;
 
-	this->elements[1].set_shape(new sphere_t(1.0f,10.0f,-55.0f,10.0f));
-	this->elements[1].get_shader().ka.set(0.0f, 0.0f, 0.0f);
-	this->elements[1].get_shader().kd.set(0.0f, 0.0f, 0.0f);
-	this->elements[1].get_shader().ks.set(0.9f, 0.9f, 0.9f);
-	this->elements[1].get_shader().p = 1000;
-	this->elements[1].get_shader().kr.set(0.9f, 0.9f, 0.9f);
-	trans.set_scale(2.0f,0.25f,1.0f);
-	this->elements[1].get_transform().cat(trans);
-	trans.set_rotation(0,0,90);
-	this->elements[1].get_transform().cat(trans);
-	trans.set_translation(1.0f,0.0f,3.0f);
-	this->elements[1].get_transform().cat(trans);
+	shader.ka.set(0.0f,0.0f,0.0f);
+	shader.kd.set(0.0f, 0.0f, 0.0f);
+	shader.ks.set(0.9f, 0.9f, 0.9f);
+	shader.p = 1000;
+	shader.kr.set(0.9f, 0.9f, 0.9f);
+	trans.reset();
+	trans.append_translation(3.0f, 4.0f, -20.0f);
+	trans.append_rotation(45.0f, 45.0f, 45.0f);
+	trans.append_scale(5.0f, 1.0f, 1.0f);
+	this->add(new sphere_t(0.0f, 0.0f, 0.0f, 1.0f), trans, shader);
 
-	this->elements[2].set_shape(new sphere_t(-12.0f,2.0f,-44.0f,2.0f));
-	this->elements[2].get_shader().kd.set(0.0f, 0.0f, 1.0f);
-
-	this->elements[3].set_shape(new sphere_t(15.0f,-5.0f,-67.0f,5.0f));
-	this->elements[3].get_shader().ka.set(0.0f, 0.0f, 0.0f);
-	this->elements[3].get_shader().kd.set(0.0f, 0.0f, 0.0f);
-	this->elements[3].get_shader().ks.set(0.9f, 0.9f, 0.9f);
-	this->elements[3].get_shader().p = 1000;
-	this->elements[3].get_shader().kr.set(0.9f, 0.9f, 0.9f);
-
-	this->elements[4].set_shape(new sphere_t(-10.0f,-4.0f,-47.0f,6.0f));
-	this->elements[4].get_shader().ka.set(0.0f, 0.0f, 0.0f);
-	this->elements[4].get_shader().kd.set(0.0f, 0.0f, 0.0f);
-	this->elements[4].get_shader().ks.set(0.9f, 0.9f, 0.9f);
-	this->elements[4].get_shader().p = 1000;
-	this->elements[4].get_shader().kr.set(0.9f, 0.9f, 0.9f);
-
-	this->elements[5].set_shape(new sphere_t(5.0f,-4.0f,-35.0f,1.0f));
-
-	this->elements[6].set_shape(
-			new sphere_t(0.0f,-10000.0f,-25.0f,9990.0f));
-	this->elements[6].get_shader().kd.set(0.8f, 0.8f, 0.8f);
-
-	this->elements[7].set_shape(
-			new triangle_t(		-5.0f, -8.0f, -36.25f,
-						-9.0f, -12.0f, -32.25f,
-						-5.0f, -4.0f, -34.25f	));
+	shader.ka.set(0.2f,0.1f,0.1f);
+	shader.kd.set(0.8f,0.3f,0.3f);
+	shader.ks.set(0.9f,0.5f,0.5f);
+	shader.p = 100;
+	shader.kr.set(0.2f,0.2f,0.2f);
+	trans.reset();
+	trans.append_scale(20.0f, 20.0f, 200.0f);
+	trans.append_translation(-0.5f,-0.5f,-0.5f);
+	this->add(mesh_io::mesh_t(string("input/cube.obj")), trans, shader);
 
 	this->lights.resize(3);
 	this->lights[0].set(true, Eigen::Vector3f(-5.0f, 10.0f, -22.0f));
@@ -280,9 +250,4 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 
 	/* return the final color */
 	return result;
-}
-		
-void scene_t::print_info() const
-{
-	// TODO implement me
 }
