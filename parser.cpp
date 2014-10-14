@@ -64,9 +64,16 @@ for (std::string line; getline(infile, line);) {
 		scene.light_amb(r, g, b); //create ambient light
 	}
 	else if(val.compare("mat") == 0) {
-		
+		float kar kag kab kdr kdg kdb ksr ksg ksb ksp krr krg krb;
+		ss >> kar >> kag >> kab >> kdr >> kdg >> kdb >> ksr >> ksg >> ksb >> ksp >> krr >> krg >> krb; 
+	
+		scene.phong_shader_t.ka.set(kar, kag, kab); //phong_shader.cpp
+		scene.phong_shader_t.kd.set(kdr, kdg, kdb);
+		scene.phong_shader_t.ks.set(ksr, ksg, ksb, ksp);
+		scene.phong_shader_t.kr.set(krr, krg, krb);
 	}
 	else if(val.compare("xft") == 0) {
+
 	}
 	else if(val.compare("xfr") == 0) {
 	}
