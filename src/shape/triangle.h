@@ -14,6 +14,7 @@
  */
 
 #include <shape/shape.h>
+#include <shape/aabb.h>
 #include <Eigen/Dense>
 #include <iostream>
 
@@ -298,6 +299,26 @@ class triangle_t : public shape_t
 
 			/* return successful intersection */
 			return true;
+		};
+		
+		/**
+		 * Populates the axis-aligned bounding box for this shape
+		 *
+		 * Will generate the bounding box for this shape, and modify
+		 * the given bounding box to represent the tightest bounds
+		 * to this shape, restricted to being axis-aligned.
+		 *
+		 * @param bounds   Where to store the axis-aligned bounding
+		 *                 box for this shape.
+		 */
+		void get_bounds(aabb_t& bounds) const
+		{
+			size_t i;
+
+			/* insert the three vertices into bounding box */
+			bounds.reset();
+			for(i = 0; i < NUM_VERTS_PER_TRI; i++)
+				bounds.expand_to(this->verts[i]);
 		};
 };
 

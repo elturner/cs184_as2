@@ -117,6 +117,12 @@ class aabb_t : public shape_t
 		{ return this->bounds(i,1); };
 
 		/**
+		 * Resets this bounding box to an invalid state
+		 */
+		inline void reset()
+		{ this->set(1.0f,-1.0f,1.0f,-1.0f,1.0f,-1.0f); };
+
+		/**
 		 * Sets this bounding box to the given values
 		 *
 		 * [ 	min_x, max_x,
@@ -163,6 +169,17 @@ class aabb_t : public shape_t
 		void expand_to(const Eigen::Vector3f& p);
 
 		/**
+		 * Grows this bounding box to include the given bounding box
+		 *
+		 * If this box is initially invalid, then it will be
+		 * exactly the input bounding box after this call.
+		 *
+		 * @param b   The bounding box to include in this object's
+		 *            domain
+		 */
+		void expand_to(const aabb_t& b);
+
+		/**
 		 * Applies the given transform to this bounding box
 		 *
 		 * Note that this is not necessarily an invertable
@@ -197,6 +214,19 @@ class aabb_t : public shape_t
 		bool intersects(float& t, Eigen::Vector3f& n,
 		                        const ray_t& r,
 					float t_min, float t_max) const;
+		
+		/**
+		 * Populates the axis-aligned bounding box for this shape
+		 *
+		 * Will generate the bounding box for this shape, and modify
+		 * the given bounding box to represent the tightest bounds
+		 * to this shape, restricted to being axis-aligned.
+		 *
+		 * @param bounds   Where to store the axis-aligned bounding
+		 *                 box for this shape.
+		 */
+		inline void get_bounds(aabb_t& bounds) const
+		{ bounds.set(this->bounds); };
 };
 
 #endif

@@ -14,6 +14,7 @@
  */
 
 #include <shape/shape.h>
+#include <shape/aabb.h>
 #include <geometry/transform.h>
 #include <scene/phong_shader.h>
 
@@ -204,6 +205,10 @@ class element_t
 			return res;
 		};
 
+		/*---------*/
+		/* shading */
+		/*---------*/
+
 		/**
 		 * Computes ambient light shading only on this object
 		 *
@@ -250,7 +255,7 @@ class element_t
 		
 			/* get the shading */
 			return this->shader.compute_phong(N,V,L,
-						light.get_color());
+						light.get_color_at(P));
 		};
 
 		/**

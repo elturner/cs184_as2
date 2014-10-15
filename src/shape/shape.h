@@ -20,6 +20,11 @@
 #include <shape/ray.h>
 #include <Eigen/Dense>
 
+/* the aabb_t class is an extension of shape, but
+ * is also referenced by the shape_t class, so it
+ * needs to be defined here as well */
+class aabb_t;
+
 /**
  * The shape_t virtual interface
  */
@@ -62,6 +67,18 @@ class shape_t
 		virtual bool intersects(float& t, Eigen::Vector3f& n,
 		                        const ray_t& r,
 					float t_min, float t_max) const =0;
+
+		/**
+		 * Populates the axis-aligned bounding box for this shape
+		 *
+		 * Will generate the bounding box for this shape, and modify
+		 * the given bounding box to represent the tightest bounds
+		 * to this shape, restricted to being axis-aligned.
+		 *
+		 * @param bounds   Where to store the axis-aligned bounding
+		 *                 box for this shape.
+		 */
+		virtual void get_bounds(aabb_t& bounds) const =0;
 };
 
 #endif

@@ -27,10 +27,10 @@ HEADERS =	include/lodepng/lodepng.h \
 		src/io/raytrace_args.h \
 		src/io/mesh/mesh_io.h \
 		src/color/color.h \
+		src/shape/shape.h \
+		src/shape/aabb.h \
 		src/shape/sphere.h \
 		src/shape/triangle.h \
-		src/shape/aabb.h \
-		src/shape/shape.h \
 		src/shape/ray.h \
 		src/geometry/transform.h \
 		src/scene/light.h \

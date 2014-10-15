@@ -48,6 +48,31 @@ void aabb_t::expand_to(const Eigen::Vector3f& p)
 		}
 	}
 }
+		
+void aabb_t::expand_to(const aabb_t& b)
+{
+	size_t i;
+
+	/* iterate over dimensions of box */
+	for(i = 0; i < NUM_DIMS; i++)
+	{
+		/* check if invalid */
+		if(this->bounds(i,0) > this->bounds(i,1))
+		{
+			/* reset bounds */
+			this->bounds(i,0) = b.min(i);
+			this->bounds(i,1) = b.max(i);
+		}
+		else
+		{
+			/* update bounds */
+			if(this->bounds(i,0) > b.min(i))
+				this->bounds(i,0) = b.min(i);
+			if(this->bounds(i,1) < b.max(i))
+				this->bounds(i,1) = b.max(i);
+		}
+	}
+}
 
 void aabb_t::apply(const transform_t& t)
 {

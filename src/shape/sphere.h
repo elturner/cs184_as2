@@ -13,6 +13,7 @@
  */
 
 #include <shape/shape.h>
+#include <shape/aabb.h>
 #include <Eigen/Dense>
 #include <algorithm>
 #include <iostream>
@@ -213,6 +214,28 @@ class sphere_t : public shape_t
 
 			/* we intersected */
 			return true;
+		};
+		
+		/**
+		 * Populates the axis-aligned bounding box for this shape
+		 *
+		 * Will generate the bounding box for this shape, and modify
+		 * the given bounding box to represent the tightest bounds
+		 * to this shape, restricted to being axis-aligned.
+		 *
+		 * @param bounds   Where to store the axis-aligned bounding
+		 *                 box for this shape.
+		 */
+		inline void get_bounds(aabb_t& bounds) const
+		{
+			/* fit cube around sphere */
+			bounds.set(
+				this->center(0) - this->radius,
+				this->center(0) + this->radius,
+				this->center(1) - this->radius,
+				this->center(1) + this->radius,
+				this->center(2) - this->radius,
+				this->center(2) + this->radius);
 		};
 };
 

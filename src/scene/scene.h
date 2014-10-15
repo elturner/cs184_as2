@@ -190,6 +190,36 @@ class scene_t
 		 * @return       Returns the final color observed by the ray
 		 */
 		color_t trace(const ray_t& ray, int r) const;
+
+	/* helper functions */
+	private:
+
+		/**
+		 * Brute-force search of ray intersection over all elements
+		 *
+		 * Will search over all elements in this scene, looking
+		 * for the best intersection with the given ray.  This
+		 * function performs this search using brute-force 
+		 * techniques.
+		 *
+		 * @param i_best        Where to store the index of best 
+		 *                      element.  If out-of-bounds, then 
+		 *                      no element found.
+		 * @param t_best        Where to store the best intersection
+		 *                      point along the ray
+		 * @param normal_best   Where to store normal of best 
+		 *                      surface.
+		 * @param ray           The ray to test
+		 * @param shortcircuit  If true, will return the first
+		 *                      element that intersects, even if it
+		 *                      isn't the closest.
+		 * @param t_min         The minimum t-value to start search
+		 * @param t_max         The max t-value to end search
+		 */
+		void brute_force_search(size_t& i_best, float& t_best,
+				Eigen::Vector3f& normal_best,
+				const ray_t& ray, bool shortcircuit,
+				float t_min, float t_max) const;
 };
 
 #endif
