@@ -12,6 +12,7 @@ SOURCES =	include/lodepng/lodepng.cpp \
 		src/util/cmd_args.cpp \
 		src/io/raytrace_args.cpp \
 		src/io/mesh/mesh_io.cpp \
+		src/shape/aabb.cpp \
 		src/geometry/transform.cpp \
 		src/scene/phong_shader.cpp \
 		src/scene/camera.cpp \
@@ -28,6 +29,7 @@ HEADERS =	include/lodepng/lodepng.h \
 		src/color/color.h \
 		src/shape/sphere.h \
 		src/shape/triangle.h \
+		src/shape/aabb.h \
 		src/shape/shape.h \
 		src/shape/ray.h \
 		src/geometry/transform.h \

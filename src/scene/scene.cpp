@@ -6,6 +6,7 @@
 #include <shape/shape.h>
 #include <shape/sphere.h>
 #include <shape/triangle.h>
+#include <shape/aabb.h>
 #include <scene/light.h>
 #include <scene/camera.h>
 #include <scene/element.h>
@@ -77,6 +78,7 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	phong_shader_t shader;
 	light_t light;
 
+	/* ellipsoid */
 	shader.ka.set(0.0f,0.0f,0.0f);
 	shader.kd.set(0.0f, 0.0f, 0.0f);
 	shader.ks.set(0.9f, 0.9f, 0.9f);
@@ -88,11 +90,20 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	trans.append_scale(5.0f, 1.0f, 1.0f);
 	this->add(new sphere_t(0.0f, 0.0f, 0.0f, 1.0f), trans, shader);
 
+	/* sphere */
 	trans.reset();
 	trans.append_translation(-5.0f, -9.0f, -45.0f);
 	trans.append_scale(5.0f, 5.0f, 5.0f);
 	this->add(new sphere_t(0.0f,0.0f,0.0f,1.0f), trans, shader);
 
+	/* small box */
+	trans.reset();
+	trans.append_translation(-7.0f, 6.0f, -30.0f);
+	trans.append_rotation(20.0f, 30.0f, 40.0f);
+	trans.append_scale(2.0f, 2.0f, 2.0f);
+	this->add(new aabb_t(-1,1,-1,1,-1,1), trans, shader);
+
+	/* room */
 	shader.ka.set(0.1f,0.1f,0.1f);
 	shader.kd.set(0.4f,0.3f,0.3f);
 	shader.ks.set(0.4f,0.2f,0.2f);
