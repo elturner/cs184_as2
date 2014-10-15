@@ -33,7 +33,9 @@ class light_t
 		enum LIGHT_TYPE
 		{
 			DIRECTIONAL_LIGHT,
-			POINT_LIGHT,
+			POINT_LIGHT_NO_FALLOFF,
+			POINT_LIGHT_LINEAR_FALLOFF,
+			POINT_LIGHT_QUADRATIC_FALLOFF,
 			AMBIENT_LIGHT
 		};
 
@@ -130,18 +132,80 @@ class light_t
 		{ return this->color; };
 
 		/**
-		 * Gets the color for this light source
+		 * Gets the color of this light source at the given point
 		 *
-		 * @return    Returns the color of this light source
+		 * @param p   The point at which to sample the color
+		 *
+		 * @return    Returns the color of this light at point p
 		 */
-		inline color_t& get_color()
-		{ return this->color; };
+		inline color_t get_color_at(const Eigen::Vector3f& p) const
+		{
+			float d;
+
+			/* what we do depends on type of light source */
+			switch(this->type)
+			{
+				default:
+				case AMBIENT_LIGHT:
+				case DIRECTIONAL_LIGHT:
+				case POINT_LIGHT_NO_FALLOFF:
+					/* color doesn't change with
+					 * position, so just return it */
+					return this->color;
+
+				case POINT_LIGHT_LINEAR_FALLOFF:
+					/* Light fads linearly with
+					 * distance to light.  Get the
+					 * distance and scale it */
+					d = this->get_distance(p);
+					return (this->color) * (1.0f/d);
+
+				case POINT_LIGHT_QUADRATIC_FALLOFF:
+					/* light fads quadratically with
+					 * distance to light.  Get distance
+					 * and scale it */
+					d = this->get_distance(p);
+					return (this->color) * (1.0f/(d*d));
+			}
+
+			/* we shouldn't be able to get here, but
+			 * if we do, just return the original color */
+			return this->color;
+		};
+
+		/**
+		 * Sets the color for this light source
+		 *
+		 * @param red    The red component of the color
+		 * @param green  The green component of the color
+		 * @param blue   The blue component of the color
+		 */
+		inline void set_color(float red, float green, float blue)
+		{ this->color.set(red, green, blue); };
+
+		/**
+		 * Sets the color for this light source
+		 *
+		 * @param c  The color to use
+		 */
+		inline void set_color(const color_t& c)
+		{ this->color = c; };
 
 		/**
 		 * Returns true if this is a point light source
 		 */
 		inline bool is_point() const
-		{ return this->type == POINT_LIGHT; };
+		{ 
+			switch(this->type)
+			{
+				case POINT_LIGHT_NO_FALLOFF:
+				case POINT_LIGHT_LINEAR_FALLOFF:
+				case POINT_LIGHT_QUADRATIC_FALLOFF:
+					return true;
+				default:
+					return false;
+			}
+		};
 
 		/**
 		 * Retruns true iff this is an ambient light source
@@ -186,7 +250,9 @@ class light_t
 			/* check what type of light source this is */
 			switch(this->type)
 			{
-				case POINT_LIGHT:
+				case POINT_LIGHT_NO_FALLOFF:
+				case POINT_LIGHT_LINEAR_FALLOFF:
+				case POINT_LIGHT_QUADRATIC_FALLOFF:
 					/* need to compute displacement 
 					 * of the point in order to 
 					 * determine the direction of the 
@@ -225,7 +291,9 @@ class light_t
 			/* get type of light */
 			switch(this->type)
 			{
-				case POINT_LIGHT:
+				case POINT_LIGHT_NO_FALLOFF:
+				case POINT_LIGHT_LINEAR_FALLOFF:
+				case POINT_LIGHT_QUADRATIC_FALLOFF:
 					/* distance to point */
 					return (p - this->v).norm();
 
@@ -249,11 +317,31 @@ class light_t
 		 *
 		 * @param val      This is the position
 		 *                 of the light source in 3D space.
+		 * @param falloff  The falloff type of this point light.
+		 *                 (0 = no falloff, 1 = linear, 
+		 *                 2 = quadratic)
 		 */
-		inline void set_point(const Eigen::Vector3f& val)
+		inline void set_point(const Eigen::Vector3f& val,
+					int falloff=0)
 		{
-			this->type = POINT_LIGHT;
+			/* save position of point light */
 			this->v = val;
+
+			/* save the falloff type */
+			switch(falloff)
+			{
+				default:
+					this->type = POINT_LIGHT_NO_FALLOFF;
+					break;
+				case 1: /* linear */
+					this->type 
+					= POINT_LIGHT_LINEAR_FALLOFF;
+					break;
+				case 2: /* quadratic */
+					this->type
+					= POINT_LIGHT_QUADRATIC_FALLOFF;
+					break;
+			}
 		};
 
 		/**

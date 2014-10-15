@@ -107,7 +107,7 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	shader.ka.set(0.1f,0.1f,0.1f);
 	shader.kd.set(0.4f,0.3f,0.3f);
 	shader.ks.set(0.4f,0.2f,0.2f);
-	shader.p = 1000;
+	shader.p = 100;
 	shader.kr.set(0.1f,0.1f,0.1f);
 	trans.reset();
 	trans.append_scale(30.0f, 30.0f, 200.0f);
@@ -115,23 +115,23 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	this->add(mesh_io::mesh_t(string("input/cube.obj")), trans, shader);
 
 	/* point light */
-	light.set_point(Eigen::Vector3f(-3.0f, 10.0f, -15.0f));
-	light.get_color().set(1.0f, 1.0f, 1.0f);
+	light.set_point(Eigen::Vector3f(-3.0f, 10.0f, -15.0f), 0);
+	light.set_color(1.0f, 1.0f, 1.0f);
 	this->add(light);
 
 	/* point light */
-	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -15.0f));
-	light.get_color().set(1.0f, 1.0f, 1.0f);
+	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -15.0f), 1);
+	light.set_color(5.0f, 5.0f, 5.0f);
 	this->add(light);
 	
 	/* point light */
-	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -17.0f));
-	light.get_color().set(1.0f, 1.0f, 1.0f);
+	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -17.0f), 2);
+	light.set_color(10.0f, 10.0f, 10.0f);
 	this->add(light);
 	
 	/* ambient light */
 	light.set_ambient();
-	light.get_color().set(0.2f, 0.2f, 0.2f);
+	light.set_color(0.2f, 0.2f, 0.2f);
 	this->add(light);
 
 	/* success */
@@ -194,25 +194,16 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 
 	/* iterate over the elements of the scene */
 	num_elems = this->elements.size();
-	num_lights = this->lights.size();
-	t_best = FLT_MAX; /* infinite distance */
-	i_best = num_elems; /* invalid index */
-	for(i = 0; i < num_elems; i++)
-	{
-		/* check if the given ray intersects this element */
-		if(!(this->elements[i].intersects(t, normal, ray,
-						EPSILON, t_best)))
-			continue; /* no intersection */
-
-		/* keep track of best surface seen */
-		t_best = t;
-		i_best = i;
-		normal_best = normal;
-	}
+	this->brute_force_search(i_best, t_best, normal_best, ray, 
+				false, EPSILON, FLT_MAX);
 
 	/* check if we saw anything */
 	if(i_best == num_elems)
 		return result; /* this is a black color */
+	
+	/*------------------------------*/
+	/* get coloring from each light */
+	/*------------------------------*/
 
 	/* for debugging purposes, we want the ability to render
 	 * the simplest representation of the scene.  If this
@@ -227,10 +218,8 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 	viewdir = this->camera.get_eye() - pos;
 	viewdir.normalize();
 
-	/*------------------------------*/
-	/* get coloring from each light */
-	/*------------------------------*/
-	
+	/* iterate over the lights, checking for shadows */
+	num_lights = this->lights.size();
 	for(j = 0; j < num_lights; j++)
 	{
 		/* check if this is an ambient light source */
@@ -248,20 +237,9 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 		shadow.set(pos, lightdir);
 
 		/* check for occluding elements (shadows) */
-		isshadowed = false;
-		for(i = 0; i < num_elems; i++)
-		{
-			/* check if the i'th element shadows this 
-			 * position */
-			if(!(this->elements[i].intersects(t, normal, shadow,
-						EPSILON, lightdist)))
-				continue; /* no intersection */
-
-			/* the i'th element shadows us from this
-			 * light source.  Don't shade here. */
-			isshadowed = true;
-			break;
-		}
+		this->brute_force_search(i, t, normal, shadow, true,
+						EPSILON, lightdist);
+		isshadowed = (i != num_elems);
 
 		/* apply effect of this light to scene */
 		if(!isshadowed)
@@ -286,4 +264,38 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 
 	/* return the final color */
 	return result;
+}
+		
+void scene_t::brute_force_search(size_t& i_best, float& t_best,
+				Eigen::Vector3f& normal_best,
+				const ray_t& ray, bool shortcircuit,
+				float t_min, float t_max) const
+{
+	Vector3f normal;
+	float t;
+	size_t i, num_elems;
+
+	/* prepare search terms */
+	num_elems = this->elements.size();
+	t_best = t_max; /* maximum distance to search */
+	i_best = num_elems; /* invalid index */
+
+	/* iterate over all elements */
+	for(i = 0; i < num_elems; i++)
+	{
+		/* check if the given ray intersects this element */
+		if(!(this->elements[i].intersects(t, normal, ray,
+						t_min, t_best)))
+			continue; /* no intersection */
+
+		/* keep track of best surface seen */
+		t_best = t;
+		i_best = i;
+		normal_best = normal;
+
+		/* we have intersected an element, so if we are
+		 * short-circuiting, then we return now */
+		if(shortcircuit)
+			return;
+	}
 }
