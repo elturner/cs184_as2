@@ -52,15 +52,13 @@ for (std::string line; getline(infile, line);) {
 	/////
 	}
 	else if(val.compare("ltp") == 0) {
-		//////
 		float px, py, pz, r, g, b, [falloff]; //keep in brackets? where to specifiy lin/quad?
-		//////
 		ss >> px >> py >> pz >> r >> g >> b >> [falloff];
 
 		scene.light_t(POINT_LIGHT, px, py, pz, r, g, b);
 	}
 	else if(val.compare("ltd") == 0) {
-		float dx dy dz r g b;
+		float dx, dy, dz, r, g, b;
 		ss >> dx >> dy >> dz >> r >> g >> b;
 
 		scene.light_t(DIRECTIONAL_LIGHT, dx, dy, dz, r, g, b);
@@ -69,17 +67,19 @@ for (std::string line; getline(infile, line);) {
 		float r, g, b;
 		ss >> r >> g >> b;
 
-		scene.light_amb(AMBIENT_LIGHT, r, g, b); //create ambient light
+		scene.light_amb(AMBIENT_LIGHT, 0, 0, 0, r, g, b); //???reate ambient light default
 	}
 	else if(val.compare("mat") == 0) {
-		float kar kag kab kdr kdg kdb ksr ksg ksb ksp krr krg krb;
+		float kar, kag, kab, kdr, kdg, kdb, ksr, ksg, ksb, ksp, krr, krg, krb;
 		ss >> kar >> kag >> kab >> kdr >> kdg >> kdb >> ksr >> ksg >> ksb >> ksp >> krr >> krg >> krb; 
-		phong_shader_t shader;
-		scene.shader.ka.set(kar, kag, kab); //phong_shader.cpp
-		scene.shader.kd.set(kdr, kdg, kdb);
-		scene.shader.ks.set(ksr, ksg, ksb, ksp);
-		scene.shader.p.set(ksp);
-		scene.shader.kr.set(krr, krg, krb);
+		
+		scene.phong_shader_t() shader;
+		
+		shader.ka.set(kar, kag, kab); //phong_shader.h
+		shader.kd.set(kdr, kdg, kdb);
+		shader.ks.set(ksr, ksg, ksb, ksp);
+		shader.p.set(ksp);
+		shader.kr.set(krr, krg, krb);
 	}
 	else if(val.compare("xft") == 0) {
 		float tx ty tz;
@@ -95,7 +95,7 @@ for (std::string line; getline(infile, line);) {
 	else if(val.compare("xfs") == 0) {
 		float rx ry rz;
 		ss >> rx >> ry >> rz;
-		geometry.set_scalre(rx, ry, rz);
+		geometry.set_scale(rx, ry, rz);
 	}
 
 }
