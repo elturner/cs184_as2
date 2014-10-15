@@ -114,18 +114,22 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	trans.append_translation(-0.5f,-0.5f,-0.5f);
 	this->add(mesh_io::mesh_t(string("input/cube.obj")), trans, shader);
 
+	/* point light */
 	light.set_point(Eigen::Vector3f(-3.0f, 10.0f, -15.0f));
 	light.get_color().set(1.0f, 1.0f, 1.0f);
 	this->add(light);
-	
+
+	/* point light */
 	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -15.0f));
 	light.get_color().set(1.0f, 1.0f, 1.0f);
 	this->add(light);
 	
+	/* point light */
 	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -17.0f));
 	light.get_color().set(1.0f, 1.0f, 1.0f);
 	this->add(light);
 	
+	/* ambient light */
 	light.set_ambient();
 	light.get_color().set(0.2f, 0.2f, 0.2f);
 	this->add(light);
@@ -197,7 +201,7 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 	{
 		/* check if the given ray intersects this element */
 		if(!(this->elements[i].intersects(t, normal, ray,
-						0.0f, t_best)))
+						EPSILON, t_best)))
 			continue; /* no intersection */
 
 		/* keep track of best surface seen */

@@ -169,19 +169,19 @@ bool aabb_t::intersects(float& t, Eigen::Vector3f& n,
 
 	/* at this point, we're guaranteed an intersection, so now
 	 * we need to check which values are in range */
-	n << 0.0f, 0.0f, 0.0f;
 	if(tmin < t_min)
 	{
 		/* The ray starts within the box.
 		 *
 		 * Since the box is modeled as 'solid', we still
 		 * want to consider it an intersection */
-		n(tmax_dim) = s[tmax_dim] ? 1.0f : -1.0f;
+		n = - r.dir();
 		t = t_min; /* embedded in box */
 	}
 	else
 	{
 		/* the front-face of cube is intersected */
+		n << 0.0f, 0.0f, 0.0f;
 		n(tmin_dim) = s[tmin_dim] ? 1.0f : -1.0f;
 		t = tmin; /* surface of box */
 	}
