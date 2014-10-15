@@ -66,18 +66,28 @@ for (std::string line; getline(infile, line);) {
 	else if(val.compare("mat") == 0) {
 		float kar kag kab kdr kdg kdb ksr ksg ksb ksp krr krg krb;
 		ss >> kar >> kag >> kab >> kdr >> kdg >> kdb >> ksr >> ksg >> ksb >> ksp >> krr >> krg >> krb; 
-	
-		scene.phong_shader_t.ka.set(kar, kag, kab); //phong_shader.cpp
-		scene.phong_shader_t.kd.set(kdr, kdg, kdb);
-		scene.phong_shader_t.ks.set(ksr, ksg, ksb, ksp);
-		scene.phong_shader_t.kr.set(krr, krg, krb);
+		phong_shader_t shader;
+		scene.shader.ka.set(kar, kag, kab); //phong_shader.cpp
+		scene.shader.kd.set(kdr, kdg, kdb);
+		scene.shader.ks.set(ksr, ksg, ksb, ksp);
+		scene.shader.p.set(ksp);
+		scene.shader.kr.set(krr, krg, krb);
 	}
 	else if(val.compare("xft") == 0) {
-
+		float tx ty tz;
+		ss >> tx >> ty >> tz;
+		geometry.set_translation(tx, ty, tz);
 	}
 	else if(val.compare("xfr") == 0) {
+		float rx ry rz;
+		ss >> rx >> ry >> rz;
+		geometry.set_rotation(rx, ry, rz);
+
 	}
 	else if(val.compare("xfs") == 0) {
+		float rx ry rz;
+		ss >> rx >> ry >> rz;
+		geometry.set_scalre(rx, ry, rz);
 	}
 
 }
