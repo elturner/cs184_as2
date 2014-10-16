@@ -19,6 +19,7 @@
 #include <scene/light.h>
 #include <scene/camera.h>
 #include <scene/element.h>
+#include <tree/aabb_tree.h>
 #include <Eigen/Dense>
 #include <string>
 #include <vector>
@@ -39,6 +40,17 @@ class scene_t
 		 * Each element has a shape and material properties.
 		 */
 		std::vector<element_t> elements;
+
+		/**
+		 * This Axis-Aligned Bounding Box (AABB) tree is used
+		 * to make ray-traces through the list of elements
+		 * in this scene efficient.
+		 *
+		 * It holds the indices of elements in the above list,
+		 * and can determine which elements are hit by a given
+		 * ray by performing bounding-box analysis.
+		 */
+		aabb_tree_t tree;
 
 		/**
 		 * The lighting of the environment is represented by
@@ -68,6 +80,14 @@ class scene_t
 		 * phong shading.
 		 */
 		bool render_normal_shading;
+
+		/**
+		 * If true, will perform element-searching for
+		 * ray tracing in a brute-force manner.
+		 *
+		 * If false, will use AABB-tree to search
+		 */
+		bool use_brute_force_search;
 
 	/* functions */
 	public:

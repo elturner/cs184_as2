@@ -10,10 +10,13 @@ EXECUTABLE = as2
 
 SOURCES =	include/lodepng/lodepng.cpp \
 		src/util/cmd_args.cpp \
+		src/util/tictoc.cpp \
 		src/io/raytrace_args.cpp \
 		src/io/mesh/mesh_io.cpp \
 		src/shape/aabb.cpp \
 		src/geometry/transform.cpp \
+		src/tree/aabb_tree.cpp \
+		src/tree/aabb_node.cpp \
 		src/scene/phong_shader.cpp \
 		src/scene/camera.cpp \
 		src/scene/scene.cpp \
@@ -24,6 +27,7 @@ SOURCES =	include/lodepng/lodepng.cpp \
 HEADERS =	include/lodepng/lodepng.h \
 		src/util/error_codes.h \
 		src/util/cmd_args.h \
+		src/util/tictoc.h \
 		src/io/raytrace_args.h \
 		src/io/mesh/mesh_io.h \
 		src/color/color.h \
@@ -33,6 +37,8 @@ HEADERS =	include/lodepng/lodepng.h \
 		src/shape/triangle.h \
 		src/shape/ray.h \
 		src/geometry/transform.h \
+		src/tree/aabb_tree.h \
+		src/tree/aabb_node.h \
 		src/scene/light.h \
 		src/scene/phong_shader.h \
 		src/scene/element.h \

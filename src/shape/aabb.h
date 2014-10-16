@@ -227,6 +227,27 @@ class aabb_t : public shape_t
 		 */
 		inline void get_bounds(aabb_t& bounds) const
 		{ bounds.set(this->bounds); };
+
+		/*-----------*/
+		/* operators */
+		/*-----------*/
+
+		/**
+		 * Given another bounding box, will set this object to
+		 * a copy of the argument.
+		 *
+		 * @param other   The bounding box to copy
+		 *
+		 * @return     Returns reference to modified box
+		 */
+		inline aabb_t& operator = (const aabb_t& other)
+		{
+			/* copy values */
+			this->set(other.bounds);
+
+			/* return the result */
+			return (*this);
+		};
 };
 
 #endif

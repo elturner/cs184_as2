@@ -3,6 +3,7 @@
 #include <gui/canvas.h>
 #include <gui/sampler.h>
 #include <scene/scene.h>
+#include <util/tictoc.h>
 
 /**
  * @file    main.cpp
@@ -28,11 +29,13 @@ int main(int argc, char** argv)
 	canvas_t canvas;
 	sampler_t sampler;
 	scene_t scene;
+	tictoc_t clk;
 	size_t i, n, r, c;
 	float u, v;
 	int ret;
 
 	/* parse the args */
+	tic(clk);
 	ret = args.parse(argc, argv);
 	if(ret)
 		return 1;
@@ -57,8 +60,10 @@ int main(int argc, char** argv)
 			return 2;
 		}
 	}
+	toc(clk, "Initializing");
 
 	/* render the scene by generating rays using the sampler */
+	tic(clk);
 	while(!(sampler.is_done()))
 	{
 		/* sample a coordinate from the pixel */
@@ -67,11 +72,14 @@ int main(int argc, char** argv)
 		/* raytrace for this pixel */
 		canvas.add_pixel(c, r, scene.trace(u, v));
 	}
+	toc(clk, "Tracing");
 
 	/* export the canvas to the output image(s) */
+	tic(clk);
 	n = args.outfiles.size();
 	for(i = 0; i < n; i++)
 		canvas.writepng(args.outfiles[i]);
+	toc(clk, "Exporting");
 	
 	/* success */
 	return 0;

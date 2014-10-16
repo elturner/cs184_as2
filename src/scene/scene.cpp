@@ -10,11 +10,13 @@
 #include <scene/light.h>
 #include <scene/camera.h>
 #include <scene/element.h>
+#include <tree/aabb_tree.h>
 #include <Eigen/Dense>
 #include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <stdlib.h>
 #include <float.h>
 
 /**
@@ -61,6 +63,7 @@ scene_t::~scene_t()
 		this->elements[i].set_shape(NULL);
 	}
 	this->elements.clear();
+	this->tree.clear();
 
 	/* free all lights */
 	this->lights.clear();
@@ -71,9 +74,12 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	/* prepare scene parameters */
 	this->recursion_depth = rd;
 	this->render_normal_shading = debug;
+	this->use_brute_force_search = false;
 
 	// TODO implement me
 
+	////////////////////////////////////
+	// BEGIN STATICALLY DEFINED SCENE
 	transform_t trans;
 	phong_shader_t shader;
 	light_t light;
@@ -102,7 +108,7 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	trans.append_rotation(20.0f, 30.0f, 40.0f);
 	trans.append_scale(2.0f, 2.0f, 2.0f);
 	this->add(new aabb_t(-1,1,-1,1,-1,1), trans, shader);
-
+	
 	/* room */
 	shader.ka.set(0.1f,0.1f,0.1f);
 	shader.kd.set(0.4f,0.3f,0.3f);
@@ -133,6 +139,13 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	light.set_ambient();
 	light.set_color(0.2f, 0.2f, 0.2f);
 	this->add(light);
+	// END STATICALLY-DEFINED SCENE
+	//////////////////////////////////
+
+	/* now that all the elements of the scene have been
+	 * added, initialize the aabb tree in order to allow
+	 * for fast ray tracing */
+	this->tree.init(this->elements);
 
 	/* success */
 	return 0;
@@ -194,8 +207,12 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 
 	/* iterate over the elements of the scene */
 	num_elems = this->elements.size();
-	this->brute_force_search(i_best, t_best, normal_best, ray, 
+	if(this->use_brute_force_search)
+		this->brute_force_search(i_best, t_best, normal_best, ray, 
 				false, EPSILON, FLT_MAX);
+	else
+		this->tree.trace(i_best, t_best, normal_best, ray, false,
+				EPSILON, FLT_MAX, this->elements);
 
 	/* check if we saw anything */
 	if(i_best == num_elems)
@@ -237,8 +254,13 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 		shadow.set(pos, lightdir);
 
 		/* check for occluding elements (shadows) */
-		this->brute_force_search(i, t, normal, shadow, true,
+		if(this->use_brute_force_search)
+			this->brute_force_search(i, t, normal, shadow, true,
 						EPSILON, lightdist);
+		else
+			this->tree.trace(i, t, normal, shadow, true,
+						EPSILON, lightdist,
+						this->elements);
 		isshadowed = (i != num_elems);
 
 		/* apply effect of this light to scene */
