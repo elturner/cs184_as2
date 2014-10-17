@@ -37,6 +37,8 @@ aabb_tree_t::~aabb_tree_t()
 void aabb_tree_t::init(const std::vector<element_t>& elements)
 {
 	vector<aabb_node_t> leaf_nodes;
+	vector<aabb_node_t>::const_iterator it;
+	vector<vector<aabb_node_t>::const_iterator> leaf_node_ptrs;
 	aabb_t bounds;
 	size_t i, n;
 
@@ -57,15 +59,19 @@ void aabb_tree_t::init(const std::vector<element_t>& elements)
 		bounds.apply(elements[i].get_transform());
 
 		/* add a new leaf node to represent this element */
-		leaf_nodes.push_back(aabb_node_t());
-		leaf_nodes.back().init(i, bounds);
+		leaf_nodes.push_back(aabb_node_t(i, bounds));
 	}
+
+	/* we want to pass iterators to this nodes, which makes it
+	 * more efficient to copy them to temporary lists */
+	for(it = leaf_nodes.begin(); it != leaf_nodes.end(); it++)
+		leaf_node_ptrs.push_back(it);
 
 	/* create a root node */
 	this->root = new aabb_node_t();
 
 	/* populate tree with leaves */
-	this->root->init(leaf_nodes);
+	this->root->init(leaf_node_ptrs);
 }
 
 void aabb_tree_t::clear()

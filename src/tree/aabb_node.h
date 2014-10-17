@@ -107,6 +107,23 @@ class aabb_node_t
 		};
 
 		/**
+		 * Constructs a leaf node with the given index and bounds
+		 *
+		 * @param i   The index to use
+		 * @param b   The bounds to use
+		 */
+		aabb_node_t(int i, const aabb_t& b)
+		{
+			size_t j;
+
+			this->index = i;
+			this->bounds = b;
+			
+			for(j = 0; j < NUM_CHILDREN_PER_NODE; j++)
+				this->children[j] = NULL;
+		};
+
+		/**
 		 * Frees all memory and resources under this node
 		 */
 		~aabb_node_t();
@@ -148,7 +165,9 @@ class aabb_node_t
 		 *
 		 * @param leaf_nodes   The list of leaves to insert
 		 */
-		void init(std::vector<aabb_node_t>& leaf_nodes);
+		void init(const std::vector<
+				std::vector<aabb_node_t>::const_iterator >& 
+					leaf_nodes);
 
 		/**
 		 * Returns true iff this node is a leaf
@@ -182,7 +201,7 @@ class aabb_node_t
 		 * @return    Returns the midpoint value of this box
 		 */
 		inline float midpoint(size_t d) const
-		{ return 0.5*(this->bounds.min(d) + this->bounds.max(d)); };
+		{ return this->bounds.center(d); };
 
 		/**
 		 * Retrieves the center position of this box.
@@ -232,6 +251,26 @@ class aabb_node_t
 		           Eigen::Vector3f& n_best, const ray_t& ray,
 			   bool shortcircuit, float t_min, float t_max,
 			   const std::vector<element_t>& elements) const;
+
+		/*-----------*/
+		/* operators */
+		/*-----------*/
+
+		inline aabb_node_t& operator = (const aabb_node_t& other)
+		{
+			size_t i;
+			
+			/* copy values */
+			this->index = other.index;
+			this->bounds = other.bounds;
+
+			/* make shallow copy of the children */
+			for(i = 0; i < NUM_CHILDREN_PER_NODE; i++)
+				this->children[i] = other.children[i];
+
+			/* return the result */
+			return (*this);
+		};
 
 		/*-----------*/
 		/* debugging */

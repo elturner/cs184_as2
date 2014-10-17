@@ -84,57 +84,53 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	phong_shader_t shader;
 	light_t light;
 
-	/* ellipsoid */
-	shader.ka.set(0.0f,0.0f,0.0f);
-	shader.kd.set(0.0f, 0.0f, 0.0f);
-	shader.ks.set(0.9f, 0.9f, 0.9f);
+	/* camera */
+	Vector3f eye(0.0f, 0.0f, 0.0f);
+	Vector3f UL( -1.0f, 1.0f, -1.0f);
+	Vector3f UR( 1.0f, 1.0f, -1.0f);
+	Vector3f LL(-1.0f,-1.0f, -1.0f);
+	Vector3f LR( 1.0f,-1.0f, -1.0f);
+	this->get_camera().set(eye,UL,UR,LL,LR);
+
+	/* teapot */
+	shader.ka.set(0.2f,0.0f,0.0f);
+	shader.kd.set(0.9f,0.1f,0.1f);
+	shader.ks.set(0.9f,0.9f,0.9f);
 	shader.p = 1000;
-	shader.kr.set(0.9f, 0.9f, 0.9f);
+	shader.kr.set(0.0f,0.0f,0.0f);
 	trans.reset();
-	trans.append_translation(3.0f, 4.0f, -30.0f);
-	trans.append_rotation(45.0f, 45.0f, 45.0f);
-	trans.append_scale(5.0f, 1.0f, 1.0f);
-	this->add(new sphere_t(0.0f, 0.0f, 0.0f, 1.0f), trans, shader);
+	trans.append_translation(-11.0f, -3.0f, -25.0f);
+	this->add(mesh_io::mesh_t(string("input/teapot.obj")), 
+						trans, shader);
 
-	/* sphere */
+	/* other teapot */
+	shader.ka.set(0.0f,0.0f,0.2f);
+	shader.kd.set(0.0f,0.1f,0.9f);
+	shader.ks.set(0.9f,0.9f,0.9f);
+	shader.p = 1000;
+	shader.kr.set(0.0f,0.0f,0.0f);
 	trans.reset();
-	trans.append_translation(-5.0f, -9.0f, -45.0f);
-	trans.append_scale(5.0f, 5.0f, 5.0f);
-	this->add(new sphere_t(0.0f,0.0f,0.0f,1.0f), trans, shader);
+	trans.append_translation(12.0f, -1.0f, -15.0f);
+	trans.append_rotation(10.0f, 20.0f, 30.0f);
+	this->add(mesh_io::mesh_t(string("input/teapot.obj")), 
+						trans, shader);
 
-	/* small box */
-	trans.reset();
-	trans.append_translation(-7.0f, 6.0f, -30.0f);
-	trans.append_rotation(20.0f, 30.0f, 40.0f);
-	trans.append_scale(2.0f, 2.0f, 2.0f);
-	this->add(new aabb_t(-1,1,-1,1,-1,1), trans, shader);
-	
 	/* room */
 	shader.ka.set(0.1f,0.1f,0.1f);
-	shader.kd.set(0.4f,0.3f,0.3f);
+	shader.kd.set(0.9f,0.9f,0.9f);
 	shader.ks.set(0.4f,0.2f,0.2f);
 	shader.p = 100;
 	shader.kr.set(0.1f,0.1f,0.1f);
 	trans.reset();
 	trans.append_scale(30.0f, 30.0f, 200.0f);
-	trans.append_translation(-0.5f,-0.5f,-0.5f);
+	trans.append_translation(-0.5f, -0.5f, -0.5f);
 	this->add(mesh_io::mesh_t(string("input/cube.obj")), trans, shader);
 
 	/* point light */
-	light.set_point(Eigen::Vector3f(-3.0f, 10.0f, -15.0f), 0);
+	light.set_point(Eigen::Vector3f(10.0f, 10.0f, 10.0f), 0);
 	light.set_color(1.0f, 1.0f, 1.0f);
 	this->add(light);
 
-	/* point light */
-	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -15.0f), 1);
-	light.set_color(5.0f, 5.0f, 5.0f);
-	this->add(light);
-	
-	/* point light */
-	light.set_point(Eigen::Vector3f(-1.0f, 10.0f, -17.0f), 2);
-	light.set_color(10.0f, 10.0f, 10.0f);
-	this->add(light);
-	
 	/* ambient light */
 	light.set_ambient();
 	light.set_color(0.2f, 0.2f, 0.2f);
@@ -145,7 +141,8 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	/* now that all the elements of the scene have been
 	 * added, initialize the aabb tree in order to allow
 	 * for fast ray tracing */
-	this->tree.init(this->elements);
+	if(!(this->use_brute_force_search))
+		this->tree.init(this->elements);
 
 	/* success */
 	return 0;
@@ -155,7 +152,6 @@ void scene_t::add(const mesh_io::mesh_t& mesh,
 			const transform_t& transform,
 				const phong_shader_t& shader)
 {
-	mesh_io::polygon_t poly;
 	size_t i, n;
 
 	/* Iterate over the polygons in this mesh.
@@ -165,15 +161,17 @@ void scene_t::add(const mesh_io::mesh_t& mesh,
 	for(i = 0; i < n; i++)
 	{
 		/* get this polygon */
-		poly = mesh.get_poly(i);
+		const mesh_io::polygon_t& poly = mesh.get_poly(i);
 		const mesh_io::vertex_t& a =mesh.get_vert(poly.vertices[0]);
 		const mesh_io::vertex_t& b =mesh.get_vert(poly.vertices[1]);
 		const mesh_io::vertex_t& c =mesh.get_vert(poly.vertices[2]);
 
 		/* add triangle to this scene based on the given polygon */
-		this->add(new triangle_t(a.x, a.y, a.z, 
-					b.x, b.y, b.z, 
-					c.x, c.y, c.z), transform, shader);
+		this->add(new triangle_t(
+				(float)a.x, (float)a.y, (float)a.z, 
+				(float)b.x, (float)b.y, (float)b.z, 
+				(float)c.x, (float)c.y, (float)c.z),
+				transform, shader);
 	}
 }
 		

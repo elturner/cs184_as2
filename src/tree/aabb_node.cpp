@@ -31,6 +31,7 @@ aabb_node_t::aabb_node_t()
 
 	/* initialize default values */
 	this->index = -1;
+	this->bounds.reset();
 	for(i = 0; i < NUM_CHILDREN_PER_NODE; i++)
 		this->children[i] = NULL;
 }
@@ -73,10 +74,12 @@ void aabb_node_t::init(int i, const aabb_t& b)
 	this->bounds = b;
 }
 		
-void aabb_node_t::init(std::vector<aabb_node_t>& leaf_nodes)
+void aabb_node_t::init(const std::vector<
+		std::vector<aabb_node_t>::const_iterator>& leaf_nodes)
 {
+	Vector3f mp;
 	aabb_t midpoints;
-	vector<aabb_node_t> left, right;
+	vector<vector<aabb_node_t>::const_iterator> left, right;
 	size_t i, num, di, dim_to_split;
 	float len, dim_size, pivot, child_mid;
 
@@ -90,8 +93,8 @@ void aabb_node_t::init(std::vector<aabb_node_t>& leaf_nodes)
 	if(num == 1)
 	{
 		/* just set this node to the leaf */
-		this->init(leaf_nodes[0].index, leaf_nodes[0].bounds);
-		this->bounds = leaf_nodes[0].bounds;
+		this->init(leaf_nodes[0]->index, leaf_nodes[0]->bounds);
+		this->bounds = leaf_nodes[0]->bounds;
 		return;
 	}
 	if(num == 2)
@@ -101,23 +104,25 @@ void aabb_node_t::init(std::vector<aabb_node_t>& leaf_nodes)
 		for(i = 0; i < num; i++)
 		{
 			this->children[i] = new aabb_node_t();
-			this->children[i]->init(leaf_nodes[i].index, 
-						leaf_nodes[i].bounds);
-			this->bounds.expand_to(leaf_nodes[i].bounds);
+			this->children[i]->init(leaf_nodes[i]->index, 
+						leaf_nodes[i]->bounds);
+			this->bounds.expand_to(leaf_nodes[i]->bounds);
 		}
 		return;
 	}
 
-	/* get the bounding box for all the shapes */ 
+	/* get the bounding box for all the shapes */
+	midpoints.reset();
 	for(i = 0; i < num; i++)
 	{
 		/* compute bounding box */
-		this->bounds.expand_to(leaf_nodes[i].bounds);
+		this->bounds.expand_to(leaf_nodes[i]->bounds);
 
 		/* compute midpoint of this leaf, and update
 		 * our 'midpoints' bounding box, which we will
 		 * use to split the subnodes */
-		midpoints.expand_to(leaf_nodes[i].midpoint());
+		mp = leaf_nodes[i]->midpoint();
+		midpoints.expand_to(mp);
 	}
 
 	/* Determine which dimension has the largest bounds.
@@ -139,11 +144,11 @@ void aabb_node_t::init(std::vector<aabb_node_t>& leaf_nodes)
 	/* now that we know which dimension we're splitting on,
 	 * we want to segment the leaves based on the midpoint of
 	 * this box */
-	pivot = this->midpoint(dim_to_split);
+	pivot = midpoints.center(dim_to_split);
 	for(i = 0; i < num; i++)
 	{
 		/* get the midpoint of this child */
-		child_mid = leaf_nodes[i].midpoint(dim_to_split);
+		child_mid = leaf_nodes[i]->midpoint(dim_to_split);
 
 		/* test this leaf against the current pivot point */
 		if(child_mid < pivot)

@@ -16,6 +16,7 @@
 #include <shape/ray.h>
 #include <geometry/transform.h>
 #include <Eigen/Dense>
+#include <iostream>
 
 /**
  * The aabb_t class represents the geometry of an axis-aligned bounding box
@@ -104,6 +105,17 @@ class aabb_t : public shape_t
 		 */
 		inline float min(size_t i) const
 		{ return this->bounds(i,0); };
+
+		/**
+		 * Retrieve the center of this box in the given dimension
+		 *
+		 * @param i  The coordinate to find the center
+		 *           (x = 0, y = 1, z = 2)
+		 *
+		 * @return   Returns the center position
+		 */
+		inline float center(size_t i) const
+		{ return (0.5f * (this->min(i) + this->max(i))); };
 
 		/**
 		 * Retrieve the max corner of this bounding box
@@ -248,6 +260,16 @@ class aabb_t : public shape_t
 			/* return the result */
 			return (*this);
 		};
+
+		/*-----------*/
+		/* debugging */
+		/*-----------*/
+
+		/**
+		 * Prints this structure's info to stream
+		 */
+		void print(std::ostream& os) const
+		{ os << this->bounds << std::endl; };
 };
 
 #endif
