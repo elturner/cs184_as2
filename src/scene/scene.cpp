@@ -10,6 +10,7 @@
 #include <scene/light.h>
 #include <scene/camera.h>
 #include <scene/element.h>
+#include <scene/parser.h>
 #include <tree/aabb_tree.h>
 #include <Eigen/Dense>
 #include <iostream>
@@ -35,7 +36,7 @@ using namespace std;
 using namespace Eigen;
 
 /* the following defines are used in this code */
-#define EPSILON 0.001
+#define EPSILON 0.1 //0.001
 
 /*--------------------------*/
 /* function implementations */
@@ -76,67 +77,8 @@ int scene_t::init(const std::string& filename, int rd, bool debug)
 	this->render_normal_shading = debug;
 	this->use_brute_force_search = false;
 
-	// TODO implement me
-
-	////////////////////////////////////
-	// BEGIN STATICALLY DEFINED SCENE
-	transform_t trans;
-	phong_shader_t shader;
-	light_t light;
-
-	/* camera */
-	Vector3f eye(0.0f, 0.0f, 0.0f);
-	Vector3f UL( -1.0f, 1.0f, -1.0f);
-	Vector3f UR( 1.0f, 1.0f, -1.0f);
-	Vector3f LL(-1.0f,-1.0f, -1.0f);
-	Vector3f LR( 1.0f,-1.0f, -1.0f);
-	this->get_camera().set(eye,UL,UR,LL,LR);
-
-	/* teapot */
-	shader.ka.set(0.2f,0.0f,0.0f);
-	shader.kd.set(0.9f,0.1f,0.1f);
-	shader.ks.set(0.9f,0.9f,0.9f);
-	shader.p = 1000;
-	shader.kr.set(0.0f,0.0f,0.0f);
-	trans.reset();
-	trans.append_translation(-11.0f, -3.0f, -25.0f);
-	this->add(mesh_io::mesh_t(string("input/teapot.obj")), 
-						trans, shader);
-
-	/* other teapot */
-	shader.ka.set(0.0f,0.0f,0.2f);
-	shader.kd.set(0.0f,0.1f,0.9f);
-	shader.ks.set(0.9f,0.9f,0.9f);
-	shader.p = 1000;
-	shader.kr.set(0.0f,0.0f,0.0f);
-	trans.reset();
-	trans.append_translation(12.0f, -1.0f, -15.0f);
-	trans.append_rotation(10.0f, 20.0f, 30.0f);
-	this->add(mesh_io::mesh_t(string("input/teapot.obj")), 
-						trans, shader);
-
-	/* room */
-	shader.ka.set(0.1f,0.1f,0.1f);
-	shader.kd.set(0.9f,0.9f,0.9f);
-	shader.ks.set(0.4f,0.2f,0.2f);
-	shader.p = 100;
-	shader.kr.set(0.1f,0.1f,0.1f);
-	trans.reset();
-	trans.append_scale(30.0f, 30.0f, 200.0f);
-	trans.append_translation(-0.5f, -0.5f, -0.5f);
-	this->add(mesh_io::mesh_t(string("input/cube.obj")), trans, shader);
-
-	/* point light */
-	light.set_point(Eigen::Vector3f(10.0f, 10.0f, 10.0f), 0);
-	light.set_color(1.0f, 1.0f, 1.0f);
-	this->add(light);
-
-	/* ambient light */
-	light.set_ambient();
-	light.set_color(0.2f, 0.2f, 0.2f);
-	this->add(light);
-	// END STATICALLY-DEFINED SCENE
-	//////////////////////////////////
+	/* parse the input file */
+	parser::parser_t p(filename, *this);
 
 	/* now that all the elements of the scene have been
 	 * added, initialize the aabb tree in order to allow
@@ -238,12 +180,12 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 	for(j = 0; j < num_lights; j++)
 	{
 		/* check if this is an ambient light source */
-		if(this->lights[j].is_ambient())
+	//TODO	if(this->lights[j].is_ambient())
 		{
 			/* always apply ambient lights */
 			result += this->elements[i_best].compute_ambient(
 					this->lights[j]);
-			continue;
+	//TODO		continue;
 		}
 
 		/* get direction from surface to this light */

@@ -20,6 +20,7 @@ SOURCES =	include/lodepng/lodepng.cpp \
 		src/scene/phong_shader.cpp \
 		src/scene/camera.cpp \
 		src/scene/scene.cpp \
+		src/scene/parser.cpp \
 		src/gui/canvas.cpp \
 		src/gui/sampler.cpp \
 		src/main.cpp
