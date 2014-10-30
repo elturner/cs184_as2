@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -g -O2 -W -Wall -Wextra -std=c++0x
+CFLAGS = -g -O2 -W -Wall -Wextra
 LFLAGS = -lm #-lglut -lGL -lGLU
 PFLAGS = #-pg -fprofile-arcs
 IFLAGS = -Isrc/ -Iinclude/ 
@@ -63,7 +63,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 $(BUILDDIR)/%.o : %.cpp
 	@mkdir -p $(shell dirname $@)		# ensure folder exists
-	@g++ -std=c++0x -MM -MF $(patsubst %.o,%.d,$@) -MT $@ $< # recalc depends
+	@g++ -MM -MF $(patsubst %.o,%.d,$@) -MT $@ $< # recalc depends
 	$(CC) -c $(CFLAGS) $(IFLAGS) $< -o $@
 
 # helper commands
