@@ -49,13 +49,22 @@ infile.open(filename.c_str());
 	/* iterator */
 	while(!(infile.eof())) {
 		getline(infile, line);	
+		
+		/* remove any comments from this line */
+		size_t p = line.find_first_of("#");
+		if(p != string::npos)
+			line = line.substr(0, p);
 
+		/* trim any whitespace in the front */
+		p = line.find_first_not_of(" \t\n\r");
+		if(p == string::npos)
+			continue; /* blank line */
+		if(p != 0)
+			line = line.substr(p);
+
+		/* prepare to parse the line */
 		ss.clear();
 		ss.str(line);
-
-		/* check for blank line */
-		if(ss.eof())
-			continue;
 
 		string val;
 		ss >> val; /* "cam", "sph", etc. */

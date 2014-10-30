@@ -179,14 +179,11 @@ color_t scene_t::trace(const ray_t& ray, int r) const
 	num_lights = this->lights.size();
 	for(j = 0; j < num_lights; j++)
 	{
-		/* check if this is an ambient light source */
-	//TODO	if(this->lights[j].is_ambient())
-		{
-			/* always apply ambient lights */
-			result += this->elements[i_best].compute_ambient(
+		/* apply ambient component of all lights */
+		result += this->elements[i_best].compute_ambient(
 					this->lights[j]);
-	//TODO		continue;
-		}
+		if(this->lights[j].is_ambient())
+			continue;
 
 		/* get direction from surface to this light */
 		lightdir = -(this->lights[j].get_direction(pos));
